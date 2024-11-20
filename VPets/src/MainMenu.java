@@ -1,9 +1,9 @@
-import javax.swing.*;
 import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 import java.util.Timer;
 import java.util.TimerTask;
+import javax.swing.*;
 
 public class MainMenu extends JFrame {
     private Font customFont;
@@ -22,17 +22,20 @@ public class MainMenu extends JFrame {
         this.setTitle("VPets - Main Menu");
         this.setLocationRelativeTo(null);
 
+        // Create a background panel with the uploaded image
+        JPanel backgroundPanel = new BackgroundPanel("src/resources/background.jpg");
+        backgroundPanel.setLayout(new BorderLayout());
+
         // Set up the main panel with a BoxLayout for center alignment
         JPanel mainPanel = new JPanel();
         mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
-        mainPanel.setBackground(Color.WHITE);
-        mainPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+        mainPanel.setOpaque(false); // Make the main panel transparent to show the background
 
         // Load and add animated images
         animatedLabel = new JLabel();
         animationFrames = new ImageIcon[]{
-                new ImageIcon("src/resources/Walk.png"),       // First frame
-                new ImageIcon("src/resources/WalkFlip.png")    // Second frame
+            new ImageIcon("src/resources/Walk.png"),       // First frame
+            new ImageIcon("src/resources/WalkFlip.png")    // Second frame
         };
         animatedLabel.setIcon(animationFrames[currentFrame]);
         animatedLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
@@ -44,9 +47,9 @@ public class MainMenu extends JFrame {
         // Add the title label with the custom font
         titleLabel = new JLabel("VPets");
         if (customFont != null) {
-            titleLabel.setFont(customFont.deriveFont(Font.BOLD, 175f)); // Larger Piacevoli font at 120pt size
+            titleLabel.setFont(customFont.deriveFont(Font.BOLD, 120f)); // Larger Piacevoli font at 120pt size
         } else {
-            titleLabel.setFont(new Font("SansSerif", Font.BOLD, 175)); // Fallback font
+            titleLabel.setFont(new Font("SansSerif", Font.BOLD, 120)); // Fallback font
         }
         titleLabel.setForeground(Color.BLACK); // Set title color to black
         titleLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
@@ -75,31 +78,27 @@ public class MainMenu extends JFrame {
         mainPanel.add(exitButton);
 
         // Add footer text
-        JLabel footerLabel = new JLabel("Created by Group 35: Alaan Libby, Musawer, Mustafa, Teagan in Fall 2024, CS2212 at Western University");
+        JLabel footerLabel = new JLabel("Created by Group 35: Fall 2024, CS2212 at Western University");
         footerLabel.setFont(new Font("SansSerif", Font.PLAIN, 12));
         footerLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-        // Create the main container with a border and layout
+        // Create the main container with layout (no border now)
         JPanel container = new JPanel(new BorderLayout());
-        container.setBorder(BorderFactory.createLineBorder(Color.BLACK, 7)); // 7px black border
+        container.setOpaque(false); // Transparent container to show the background
         container.add(mainPanel, BorderLayout.CENTER);
         container.add(footerLabel, BorderLayout.SOUTH);
 
-        // Use JLayeredPane with BorderLayout to keep components positioned correctly when resizing
-        JLayeredPane layeredPane = new JLayeredPane();
-        layeredPane.setLayout(new BorderLayout());
-
-        // Add the main container to the center of the layered pane
-        layeredPane.add(container, BorderLayout.CENTER);
-
-        // Create and add the settings button to the top-left corner
+        // Add settings button in the top-left corner
         JButton settingsButton = createSettingsButton();
         JPanel settingsOverlay = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
         settingsOverlay.setOpaque(false); // Transparent background for overlay
         settingsOverlay.add(settingsButton);
-        layeredPane.add(settingsOverlay, BorderLayout.NORTH);
 
-        this.setContentPane(layeredPane);
+        // Add everything to the background panel
+        backgroundPanel.add(container, BorderLayout.CENTER);
+        backgroundPanel.add(settingsOverlay, BorderLayout.NORTH);
+
+        this.setContentPane(backgroundPanel);
         this.setVisible(true);
     }
 
@@ -124,10 +123,10 @@ public class MainMenu extends JFrame {
         settingsButton.setContentAreaFilled(false);
         settingsButton.setBorderPainted(false);
         settingsButton.setFocusPainted(false);
-
+        
         // Add action to open settings
         settingsButton.addActionListener(e -> JOptionPane.showMessageDialog(this, "Settings menu"));
-
+        
         return settingsButton;
     }
 
@@ -144,6 +143,7 @@ public class MainMenu extends JFrame {
     private void startAnimation() {
         Timer timer = new Timer();
         timer.scheduleAtFixedRate(new TimerTask() {
+            @Override
             public void run() {
                 currentFrame = (currentFrame + 1) % animationFrames.length;
                 animatedLabel.setIcon(animationFrames[currentFrame]);
@@ -151,8 +151,28 @@ public class MainMenu extends JFrame {
         }, 0, 500); // Change frames every 500 milliseconds (0.5 seconds)
     }
 
+    // Custom JPanel for setting the background image
+    private static class BackgroundPanel extends JPanel {
+        private Image backgroundImage;
+
+        public BackgroundPanel(String imagePath) {
+            try {
+                backgroundImage = new ImageIcon(imagePath).getImage();
+            } catch (Exception e) {
+                System.out.println("Failed to load background image: " + imagePath);
+            }
+        }
+
+        @Override
+        protected void paintComponent(Graphics g) {
+            super.paintComponent(g);
+            if (backgroundImage != null) {
+                g.drawImage(backgroundImage, 0, 0, getWidth(), getHeight(), this);
+            }
+        }
+    }
+
     public static void main(String[] args) {
         new MainMenu(); // Launch the main menu screen
     }
 }
-
