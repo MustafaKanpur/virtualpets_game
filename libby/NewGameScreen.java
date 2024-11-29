@@ -77,7 +77,7 @@ public class NewGameScreen extends Screen {
         JPanel petPanel1 = new JPanel();
         petPanel1.setLayout(new BoxLayout(petPanel1, BoxLayout.Y_AXIS));
         petPanel1.setOpaque(false);
-        ImageIcon myPicture = new ImageIcon("Normal-3.png");
+        ImageIcon myPicture = new ImageIcon("../VPet_Assets/Pet1/Normal.png");
         Image resizedImage = myPicture.getImage().getScaledInstance(120, 150, Image.SCALE_SMOOTH);
         ImageIcon resizedIcon = new ImageIcon(resizedImage);
         JLabel image1 = new JLabel(resizedIcon);
@@ -93,7 +93,7 @@ public class NewGameScreen extends Screen {
 
         JPanel petPanel2 = new JPanel();
         petPanel2.setLayout(new BoxLayout(petPanel2, BoxLayout.Y_AXIS));
-        ImageIcon myPicture2 = new ImageIcon("Normal-2.png");
+        ImageIcon myPicture2 = new ImageIcon("../VPet_Assets/Pet2/Normal.png");
         Image resizedImage2 = myPicture2.getImage().getScaledInstance(120, 130, Image.SCALE_SMOOTH);
         ImageIcon resizedIcon2 = new ImageIcon(resizedImage2);
         JLabel image2 = new JLabel(resizedIcon2);
@@ -110,7 +110,7 @@ public class NewGameScreen extends Screen {
         petPanel2.setOpaque(false);
         JPanel petPanel3 = new JPanel();
         petPanel3.setLayout(new BoxLayout(petPanel3, BoxLayout.Y_AXIS));
-        ImageIcon myPicture3 = new ImageIcon("Normal.png");
+        ImageIcon myPicture3 = new ImageIcon("../VPet_Assets/Pet3/Normal.png");
         Image resizedImage3 = myPicture3.getImage().getScaledInstance(120, 150, Image.SCALE_SMOOTH);
         ImageIcon resizedIcon3 = new ImageIcon(resizedImage3);
         JLabel image3 = new JLabel(resizedIcon3);

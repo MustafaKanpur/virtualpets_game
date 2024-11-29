@@ -16,7 +16,7 @@ public class Screen extends JPanel {
         this.cardPanel = cardPanel;
         this.gameWindow = gameWindow;
         try {
-            this.backgroundImage = ImageIO.read(new File("background.jpg"));
+            this.backgroundImage = ImageIO.read(new File("../VPets/src/resources/background.jpg"));
         } catch (IOException e) {
             e.printStackTrace();
             this.backgroundImage = null;
