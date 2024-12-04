@@ -1,0 +1,9 @@
+import javax.swing.JPanel;
+
+public class MainMenuScreen extends JPanel {
+	
+	public MainMenuScreen(String background) {
+		
+	}
+	
+}

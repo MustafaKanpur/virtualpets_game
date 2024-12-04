@@ -1,0 +1,52 @@
+// Import necessary libraries for audio handling
+import javax.sound.sampled.*;
+import java.io.File;
+import java.io.IOException;
+
+// Class to manage audio playback functionality
+public class Sound {
+
+    private Clip clip; // Audio clip to play the sound
+
+    // Constructor to initialize the audio file and load it into the Clip
+    public Sound(String filePath) {
+        try {
+            // Specify the file path to the audio file
+            File audioFile = new File(filePath);
+
+            // Create an AudioInputStream to read the audio file
+            AudioInputStream audioStream = AudioSystem.getAudioInputStream(audioFile);
+
+            // Get an audio Clip object from the AudioSystem
+            clip = AudioSystem.getClip();
+
+            // Open the clip with the audio stream, preparing it for playback
+            clip.open(audioStream);
+
+        } catch (UnsupportedAudioFileException | IOException | LineUnavailableException e) {
+            // Handle exceptions for unsupported audio formats, I/O errors, or unavailable audio lines
+            System.out.println("Error initializing audio: " + e.getMessage());
+        }
+    }
+
+    // Method to play the audio clip
+    public void playSound() {
+        if (clip != null) { // Check if the clip is initialized
+            clip.start(); // Start playback
+        } else {
+            // Notify if the audio clip is not properly initialized
+            System.out.println("Audio clip is not initialized.");
+        }
+    }
+
+    // Method to stop the audio clip and release resources
+    public void stopSound() {
+        if (clip != null) { // Check if the clip is initialized
+            clip.stop(); // Stop playback
+            clip.close(); // Release the clip resources
+        } else {
+            // Notify if the audio clip is not properly initialized
+            System.out.println("Audio clip is not initialized.");
+        }
+    }
+}

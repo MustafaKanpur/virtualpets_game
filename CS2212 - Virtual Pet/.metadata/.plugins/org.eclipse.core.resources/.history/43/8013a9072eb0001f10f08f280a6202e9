@@ -1,0 +1,275 @@
+import java.util.Random;
+
+public class Pet {
+    private int health;
+    private int sleep;
+    private int fullness;
+    private int happiness;
+
+    private int score;
+
+    private int maxHealth;
+    private int maxSleep;
+    private int maxFullness;
+    private int maxHappiness;
+
+    private int healthLoss;
+    private int sleepLoss;
+    private int fullnessLoss;
+    private int happinessLoss;
+
+    public int happinessGain;
+    public int sleepGain;
+    public int fullnessGain;
+    public int healthGain;
+    
+    private boolean dead;
+    private boolean sleeping;
+    private boolean hungry;
+    private boolean angry;
+    
+    private int bananaCount;
+    private int pieCount;
+    private int pizzaCount;
+    
+    private int ballCount;
+    private int plushCount;
+    private int swordCount;
+    
+    private String difficulty;
+    private String name;
+    private int nextThreshold;
+    
+    // Added another argument here
+    public Pet(String difficulty,int healthVal, int sleepVal, int fullnessVal, int happinessVal, int maxHealth, int maxSleep, int maxFullness, int maxHappiness, int healthLoss, int sleepLoss, int fullnessLoss, int happinessLoss, int healthGain, int sleepGain, int fullnessGain, int happinessGain,int pieCount,int bananaCount, int pizzaCount, int ballCount, int plushCount, int swordCount,String name, int score){
+        this.difficulty = difficulty;
+    	this.health = healthVal;
+        this.sleep = sleepVal;
+        this.fullness = fullnessVal;
+        this.happiness = happinessVal;
+        this.name = name;
+        this.score = score;
+        
+        //ADDED ALL OF THIS
+        this.bananaCount = bananaCount;
+        this.pieCount = pieCount;
+        this.pizzaCount = pizzaCount;
+        this.ballCount = ballCount;
+        this.plushCount = plushCount;
+        this.swordCount = swordCount;
+        
+
+        this.maxHealth = maxHealth;
+        this.maxSleep = maxSleep;
+        this. maxFullness = maxFullness;
+        this. maxHappiness = maxHappiness;
+
+        this.healthLoss = healthLoss;
+        this.sleepLoss = sleepLoss;
+        this.fullnessLoss = fullnessLoss;
+        this.happinessLoss = happinessLoss;
+
+        this.happinessGain = happinessGain;
+        this.sleepGain = sleepGain;
+        this.fullnessGain = fullnessGain;
+        this.healthGain = healthGain;
+    
+        this.dead = false;
+        this.sleeping = false;
+        this.hungry = false;
+        this.angry = false;
+        }
+    
+    public int getScore(){
+        return score;
+    }
+
+    public void increaseScore(int amount) {
+        this.score += amount;
+        
+        // Check if the score has passed the next threshold
+        while (this.score >= nextThreshold) {
+            this.ballCount += 1; // Increment ball count
+            nextThreshold += 50; // Set the next threshold
+        }
+    }
+
+    public void decreaseScore(int amount){
+        this.score-=amount;
+    }
+
+    public int getHealth(){
+        return this.health;
+        }
+    
+    public int getSleep(){
+        return this.sleep;
+        }
+    
+    public int getFullness(){
+        return this.fullness;
+        }
+    
+    public int getHappiness(){
+        return this.happiness;
+        }
+    
+    public void setHealth(int newHealth){
+        this.health = Math.min(newHealth, this.maxHealth);
+        }
+    
+    public void setSleep(int newSleep){
+        this.sleep = Math.min(newSleep, this.maxSleep);
+        }
+
+    public void setFullness(int newFull){
+        this.fullness = Math.min(newFull,this.maxFullness);
+        }
+        
+    public void setHappiness(int newHappy){
+        this.happiness = Math.min(newHappy,this.maxHappiness);
+        }
+    
+    public int getHealthLoss(){
+        return this.healthLoss;
+    }
+
+    public int getSleepLoss(){
+        return this.sleepLoss;
+    }
+
+    public int getFullnessLoss(){
+        return this.fullnessLoss;
+    }
+
+    public int getHappinessLoss(){
+        return this.happinessLoss;
+    }
+
+    public int getHealthGain(){
+        return this.healthGain;
+    }
+
+    public int getSleepGain(){
+        return this.sleepGain;
+    }
+
+    public int getFullnessGain(){
+        return this.fullnessGain;
+    }
+
+    public int getHappinessGain(){
+        return this.happinessGain;
+    }
+
+    public int getMaxHealth(){
+        return this.maxHealth;
+    }
+
+    public int getMaxFullness(){
+        return this.maxFullness;
+    }
+
+    public int getMaxSleep(){
+        return this.maxSleep;
+    }
+
+    public int getMaxHappiness(){
+        return this.maxHappiness;
+    }
+    
+    
+    
+    public boolean isDead(){
+        return this.dead;
+        }
+    
+    public boolean isSleeping(){
+        return this.sleeping;
+        }
+    
+    public boolean isHungry(){
+        return this.hungry;
+        }
+    
+    public boolean isAngry(){
+        return this.angry;
+        }
+    
+    public void setDead(boolean deadVal){
+        this.dead = deadVal;
+        }
+    
+    public void setSleeping(boolean sleepVal){
+        this.sleeping = sleepVal;
+        }
+    
+    public void setHungry(boolean hungryVal){
+        this.hungry = hungryVal;
+        }
+    
+    public void setAngry(boolean angryVal){
+        this.angry = angryVal;
+        }
+    
+    // Added these methods below
+    public String getDifficulty() {
+    	return this.difficulty;
+    }
+    
+    public int getPieCount() {
+    	return this.pieCount;
+    }
+    
+    public int getPizzaCount() {
+    	return this.pizzaCount;
+    }
+    public int getBallCount() {
+    	return this.ballCount;
+    }
+    
+    
+    public int getPlushCount() {
+    	return this.plushCount;
+    }
+    
+    
+    public int getSwordCount() {
+    	return this.swordCount;
+    }
+    
+    
+    public int getBananaCount() {
+    	return this.bananaCount;
+    }
+    
+    public String getName() {
+    	return this.name;
+    }
+    
+    public void decrementPieCount() {
+    	this.pieCount -= 1;
+    }
+    
+    public void decrementBananaCount() {
+    	this.bananaCount -= 1;
+    }
+    
+    public void decrementPizzaCount() {
+    	this.pizzaCount -= 1;
+    }
+    
+    public void decrementBallCount() {
+    	this.ballCount -= 1;
+    }
+    
+    public void decrementPlushCount() {
+    	this.plushCount -= 1;
+    }
+    
+    public void decrementSwordCount() {
+    	this.swordCount -= 1;
+    }
+    
+    
+}

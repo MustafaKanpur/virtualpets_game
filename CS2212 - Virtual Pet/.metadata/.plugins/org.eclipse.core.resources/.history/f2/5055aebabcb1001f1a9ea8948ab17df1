@@ -1,0 +1,88 @@
+public class PetController {
+    private Pet currentPet; // The pet being controlled by this controller
+
+    // Constructor to initialize the controller with a specific pet
+    public PetController(Pet pet){
+        currentPet = pet;
+    }
+
+    // Method to play with the pet, increasing happiness and potentially score
+    public void playWithPet(){
+        currentPet.setHappiness(currentPet.getHappiness() + currentPet.getHappinessGain()); // Increase pet's happiness
+        if(currentPet.getHealth() < currentPet.getMaxHealth()){ // Check if health is below max
+            currentPet.increaseScore(20); // Increase score as a reward
+        }
+    }
+
+    // Method to exercise with the pet, affecting multiple attributes and score
+    public void exerciseWithPet(){
+        currentPet.setHealth(currentPet.getHealth() + currentPet.getHealthGain()); // Increase pet's health
+        currentPet.setSleep(currentPet.getSleep() - currentPet.getSleepLoss()); // Decrease sleep due to exercise
+        currentPet.setFullness(currentPet.getFullness() - currentPet.getFullnessLoss()); // Decrease fullness due to energy use
+        currentPet.increaseScore(20); // Increase score for exercising
+    }
+
+    // Method to take the pet to the vet, increasing health but decreasing score
+    public void petToVet(){
+        currentPet.setHealth(currentPet.getHealth() + currentPet.getHealthGain()); // Increase health from vet visit
+        currentPet.decreaseScore(5); // Decrease score due to the cost of the vet visit
+    }
+
+    // Method to let the pet sleep, increasing sleep and potentially score
+    public void petSleep(){
+        currentPet.setSleep(currentPet.getSleep() + currentPet.getSleepGain()); // Increase pet's sleep
+        if(currentPet.getSleep() < currentPet.getMaxSleep()){ // Check if sleep is still below max
+            currentPet.increaseScore(15); // Increase score as a reward
+        }
+    }
+
+    // Method to feed the pet, affecting fullness, hunger, and potentially score
+    public void feedPet(){
+        currentPet.setFullness(currentPet.getFullness() + currentPet.getFullnessGain()); // Increase fullness
+        if(currentPet.getFullness() < currentPet.getMaxFullness()){ // Check if fullness is below max
+            currentPet.increaseScore(15); // Increase score for feeding
+        }
+        if(currentPet.isHungry() && currentPet.getFullness() > 0){ // Check if pet was hungry and is now fed
+            currentPet.setHungry(false); // Set hungry state to false
+        }
+    }
+
+    // Method to gift the pet, increasing happiness and affecting anger state
+    public void giftPet(){
+        currentPet.setHappiness(currentPet.getHappiness() + currentPet.getHappinessGain()); // Increase happiness
+        if(currentPet.getHappiness() < currentPet.getMaxHappiness()){ // Check if happiness is below max
+            currentPet.increaseScore(20); // Increase score for gifting
+        }
+        if(currentPet.isAngry() && currentPet.getHappiness() > currentPet.getMaxHappiness() / 2){ // Check if pet was angry and is now happier
+            currentPet.setAngry(false); // Set angry state to false
+        }
+    }
+
+    // Method to check if the pet's sleep level is zero and set sleeping state
+    public void checkSleep(){
+        if(currentPet.getSleep() == 0){ // Check if sleep level is zero
+            currentPet.setSleeping(true); // Set sleeping state to true
+        }
+    }
+
+    // Method to check if the pet's health is zero and set dead state
+    public void checkDead(){
+        if(currentPet.getHealth() == 0){ // Check if health is zero
+            currentPet.setDead(true); // Set dead state to true
+        }
+    }
+
+    // Method to check if the pet's happiness is zero and set angry state
+    public void checkAngry(){
+        if(currentPet.getHappiness() == 0){ // Check if happiness is zero
+            currentPet.setAngry(true); // Set angry state to true
+        }
+    }
+
+    // Method to check if the pet's fullness is zero and set hungry state
+    public void checkHungry(){
+        if(currentPet.getFullness() == 0){ // Check if fullness is zero
+            currentPet.setHungry(true); // Set hungry state to true
+        }
+    }
+}

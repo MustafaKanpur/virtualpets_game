@@ -1,0 +1,126 @@
+import javax.swing.*;
+import java.awt.CardLayout;
+import java.awt.Dimension;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.awt.event.WindowListener;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.List;
+import java.time.LocalTime;
+
+import com.opencsv.*;
+import com.opencsv.exceptions.CsvException;
+
+public class Game extends JFrame {
+
+    private JPanel panelCont;
+    private ParentalControlScreen parentalControlScreen;
+    private CardLayout cl;
+    private long start;
+    private PasscodeScreen passwordScreen;
+    private FileReader filereader;
+    private CSVReader csvreader;
+    private FileWriter filewriter;
+    private CSVWriter csvwriter;
+    private int count;
+    private LocalTime localtime;
+    private Timer timer;
+    
+    private PasscodeScreen p;
+
+    public Game() throws IOException, CsvException {
+
+        this.p = new PasscodeScreen(cl, panelCont);
+
+        this.start = System.nanoTime();
+        this.panelCont = new JPanel();
+        this.cl = new CardLayout();
+        this.passwordScreen = new PasscodeScreen(cl, panelCont);
+        this.parentalControlScreen = new ParentalControlScreen(cl,panelCont,this);
+        this.count = 0;
+        this.localtime = LocalTime.now();
+        this.timer = new Timer(1000, (ActionListener) new ActionListener() {
+            public void actionPerformed(ActionEvent evt) {
+                System.out.println("WTF");
+            }
+        });
+        timer.start();
+        WindowListener listener = new WindowAdapter() {
+            public void windowClosing(WindowEvent e) {
+            	
+            	String[] lastRow = null;
+            	
+                try (CSVReader reader = new CSVReader(new FileReader("C:\\Users\\owner\\Documents\\parental_controls.csv"))) {
+                    // Read all rows into a list
+                    List<String[]> rows = reader.readAll();
+                    
+                    if (rows.isEmpty()==false) {
+                        // Get the last row
+                        lastRow = rows.get(rows.size() - 1);
+                        
+                        // Print the content of the last row
+                        System.out.println("Last Row:");
+                        for (int i=0; i < lastRow.length;i++) {
+                        	System.out.print(lastRow[i] + " ");
+                        }
+                    } else {
+                        System.out.println("The CSV file is empty.");
+                    }
+                } catch (IOException e1) {
+                    e1.printStackTrace();
+                } catch (CsvException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+                
+                try { 
+                    // create FileWriter object with file as parameter 
+                    FileWriter outputfile = new FileWriter("C:\\Users\\owner\\Documents\\parental_controls.csv", true); 
+              
+                    CSVWriter writer = new CSVWriter(outputfile);
+                    
+                    long end = System.nanoTime();
+              
+                    String[] header = {Integer.parseInt(lastRow[0]) + 1 + "",(end-start)/1000000000 + Integer.parseInt(lastRow[1]) + "", ((end-start)/1000000000 + Integer.parseInt(lastRow[1]))/(Integer.parseInt(lastRow[0]) + 1)  + "", lastRow[3]+"",lastRow[4]+"",lastRow[5]+"",lastRow[6]+"" };
+                    System.out.println((end-start)/1000000000);
+                    writer.writeNext(header); 
+              
+                    // closing writer connection 
+                    writer.close(); 
+                } 
+                catch (IOException e2) { 
+                    // TODO Auto-generated catch block 
+                    e2.printStackTrace(); 
+                } 
+
+            }
+        };
+
+        panelCont.setLayout(cl);
+
+        panelCont.add(passwordScreen,"1");
+        panelCont.add(parentalControlScreen,"2");
+        cl.show(panelCont,"1");
+
+        this.setTitle("Game");
+        this.setPreferredSize(new Dimension(1000,500));
+        this.add(panelCont);
+        this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        this.pack();
+        this.add(panelCont);
+        this.addWindowListener(listener);
+
+
+        this.setVisible(true);
+    }
+
+    public static void main(String[] args) throws IOException, CsvException {
+
+        new Game();
+    }
+}

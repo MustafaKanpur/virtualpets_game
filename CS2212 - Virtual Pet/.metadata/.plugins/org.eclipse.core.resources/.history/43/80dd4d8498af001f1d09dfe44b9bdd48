@@ -1,0 +1,67 @@
+import java.awt.CardLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.io.File;
+import java.io.FileReader;
+
+import javax.swing.JButton;
+import javax.swing.JComboBox;
+import javax.swing.JPanel;
+
+import com.opencsv.CSVReader;
+
+public class LoadGameScreen extends JPanel {
+
+    private JComboBox<String> dropdown;
+    private JButton start;
+    private GamePlayScreen gamePlayScreen;
+    private Pet loadedPet;
+    private CSVReader csvreader;
+    private FileReader filereader;
+
+    public LoadGameScreen(CardLayout cl, JPanel panelCont) {
+
+    	
+    	start = new JButton();
+        // Initialize the dropdown
+        dropdown = new JComboBox<>();
+       
+        
+        // Directory where save files are stored
+        File dir = new File("src/pet_saves/");
+        File[] directoryListing = dir.listFiles();
+        
+        if (directoryListing != null) {
+            for (File child : directoryListing) {
+                // Add the file name to the dropdown
+                if (child.isFile()) {
+                    dropdown.addItem(child.getName());
+                }
+            }
+        } else {
+            // Optional: Handle the case where the directory does not exist
+            System.out.println("Directory not found: " + dir.getAbsolutePath());
+        }
+        
+        // Add the dropdown to the JPanel
+        this.add(dropdown);
+        
+    	
+    	this.loadedPet = new Pet();
+        
+        gamePlayScreen = new GamePlayScreen(loadedPet,);
+        
+        start.addActionListener(new ActionListener() {
+        	public void actionPerformed(ActionEvent e) {
+        		FileReader filereader = new FileReader("src/pet_saves/"+dropdown.getSelectedItem().toString());
+        		CSVReader csvreader = new CSVReader(filereader);
+        		
+            	this.loadedPet = new Pet();
+        		
+            	cl.show(panelCont, "8");
+        	}
+        });
+    }
+    	
+}
+    

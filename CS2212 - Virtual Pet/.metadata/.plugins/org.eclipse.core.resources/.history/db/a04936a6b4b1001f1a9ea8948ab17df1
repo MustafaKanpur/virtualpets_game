@@ -1,0 +1,159 @@
+// Import necessary libraries for UI components, event handling, file I/O, and CSV handling
+import java.awt.GridLayout;
+import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.List;
+import javax.swing.JButton;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JSpinner;
+import javax.swing.JToggleButton;
+import javax.swing.SpinnerNumberModel;
+import java.awt.CardLayout;
+import java.awt.Color;
+import com.opencsv.*;
+import com.opencsv.exceptions.CsvException;
+
+// Suppress serialization warnings for the JPanel subclass
+@SuppressWarnings("serial")
+public class ParentalControlScreen extends JPanel {
+
+    // UI components for the parental control screen
+    private JButton exit;         // Button to exit the screen
+    private JButton reset;        // Button to reset player statistics
+    private CSVReader csvreader;  // Reader for reading CSV data
+    private FileReader filereader; // FileReader for accessing CSV file
+    private JSpinner hourBegin;   // Spinner for setting start hour
+    private JSpinner hourEnd;     // Spinner for setting end hour
+    private JSpinner minuteBegin; // Spinner for setting start minute
+    private JSpinner minuteEnd;   // Spinner for setting end minute
+    private JButton confirm;      // Button to confirm time restrictions
+    private JToggleButton on;     // Toggle button to enable/disable parental control
+
+    // Constructor for ParentalControlScreen
+    // Takes a CardLayout, container panel, and main menu as parameters
+    public ParentalControlScreen(CardLayout cl, JPanel panelCont, MainMenu mainMenu) throws IOException, CsvException {
+        // Initialize UI components
+        this.exit = new JButton("Exit");
+        this.reset = new JButton("Reset Statistics");
+        this.confirm = new JButton("Confirm");
+        this.on = new JToggleButton("On/Off");
+        
+        // Initialize spinners for time settings
+        this.hourBegin = new JSpinner(new SpinnerNumberModel(0, 0, 23, 1)); // Hour spinner (0-23)
+        this.hourEnd = new JSpinner(new SpinnerNumberModel(0, 0, 23, 1));   // End hour spinner (0-23)
+        this.minuteBegin = new JSpinner(new SpinnerNumberModel(0, 0, 59, 1)); // Minute spinner (0-59)
+        this.minuteEnd = new JSpinner(new SpinnerNumberModel(0, 0, 59, 1));   // End minute spinner (0-59)
+        
+        // Read parental control data from a CSV file
+        this.filereader = new FileReader("src/resources/parental_controls.csv");
+        this.csvreader = new CSVReader(this.filereader);
+        List<String[]> rows = csvreader.readAll(); // Get all rows from the CSV
+
+        // Set up the Exit button action to navigate back to a previous panel
+        this.exit.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(java.awt.event.ActionEvent e) {
+                cl.show(panelCont, "2"); // Show panel with identifier "2"
+            }
+        });
+
+        // Set up the Reset button action to reset player statistics
+        this.reset.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(java.awt.event.ActionEvent e) {
+                // Ask for confirmation before resetting statistics
+                int answer = JOptionPane.showConfirmDialog(mainMenu, "Are you sure?");
+                if (answer == 0) { // If "Yes" is selected
+                    try {
+                        mainMenu.resetStart(); // Reset the main menu state
+                        CSVReader csvreader = new CSVReader(new FileReader("src/resources/parental_controls.csv"));
+                        List<String[]> rows = csvreader.readAll();
+
+                        // Append a new row with reset statistics
+                        FileWriter filewriter = new FileWriter("src/resources/parental_controls.csv", true);
+                        CSVWriter csvwriter = new CSVWriter(filewriter);
+                        csvwriter.writeNext(new String[]{0 + "", 0 + "", 0 + "", rows.get(rows.size() - 1)[3] + "", rows.get(rows.size() - 1)[4] + "", rows.get(rows.size() - 1)[5] + "", rows.get(rows.size() - 1)[6] + ""});
+                        System.out.println("Written");
+                        csvwriter.close();
+                    } catch (IOException | CsvException e1) {
+                        e1.printStackTrace();
+                    }
+                }
+            }
+        });
+
+        // Set up the Confirm button action to apply time restrictions
+        this.confirm.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(java.awt.event.ActionEvent e) {
+                // Validate that start time is before end time
+                if (((int) hourBegin.getValue() == (int) hourEnd.getValue() && ((int) minuteBegin.getValue() < (int) minuteEnd.getValue())) || ((int) hourBegin.getValue() < (int) hourEnd.getValue())) {
+                    String[] lastRow = null;
+                    try {
+                        // Read the last row from the CSV file
+                        CSVReader reader = new CSVReader(new FileReader("src/resources/parental_controls.csv"));
+                        List<String[]> rows = reader.readAll();
+                        lastRow = rows.get(rows.size() - 1);
+
+                        // Write the new time restriction to the CSV
+                        FileWriter filewriter = new FileWriter("src/resources/parental_controls.csv", true);
+                        CSVWriter csvwriter = new CSVWriter(filewriter);
+                        csvwriter.writeNext(new String[]{lastRow[0], lastRow[1], lastRow[2], hourBegin.getValue() + "", minuteBegin.getValue() + "", hourEnd.getValue() + "", minuteEnd.getValue() + ""});
+                        csvwriter.close();
+                        System.out.println(lastRow[4]);
+                    } catch (IOException | CsvException e1) {
+                        e1.printStackTrace();
+                    }
+                    // Notify user of success
+                    JOptionPane.showMessageDialog(mainMenu, "Time Restriction Successfully Applied");
+                } else {
+                    // Notify user of invalid time input
+                    JOptionPane.showMessageDialog(mainMenu, "Starting time must be BEFORE Ending time", "Invalid Time Restriction", JOptionPane.ERROR_MESSAGE);
+                }
+            }
+        });
+
+        // Add components to the panel layout
+        this.add(this.exit); // Add the Exit button to the panel
+
+        // Populate layout with components and labels based on positions
+        for (int i = 0; i < 100; i++) {
+            if (i == 7) {
+                // Display total playtime
+                this.add(new JLabel("Total Playtime: " + Integer.parseInt(rows.get(rows.size() - 1)[1]) / 3600 + " h " + (Integer.parseInt(rows.get(rows.size() - 1)[1]) % 3600) / 60 + " m " + Integer.parseInt(rows.get(rows.size() - 1)[1]) % 60 + " s "));
+            } else if (i == 14) {
+                // Display average playtime
+                this.add(new JLabel("Average Playtime: " + Integer.parseInt(rows.get(rows.size() - 1)[2]) / 3600 + " h " + (Integer.parseInt(rows.get(rows.size() - 1)[2]) % 3600) / 60 + " m " + Integer.parseInt(rows.get(rows.size() - 1)[2]) % 60 + " s "));
+            } else if (i == 21) {
+                // Add the Reset button
+                this.add(this.reset);
+            } else if (i == 76) {
+                // Add time spinners and a label for time range
+                this.add(hourBegin);
+                this.add(minuteBegin);
+                this.add(new JLabel("-"));
+                this.add(hourEnd);
+                this.add(minuteEnd);
+            } else if (i == 81) {
+                // Add the Confirm button
+                this.add(confirm);
+            } else if (i == 88) {
+                // Add the On/Off toggle button
+                this.add(on);
+            } else {
+                // Add empty labels for spacing
+                this.add(new JLabel(" "));
+            }
+        }
+
+        // Set layout and background color
+        this.setLayout(new GridLayout(0, 8)); // Grid layout with 8 columns
+        this.setBackground(Color.white); // Set background to white
+    }
+}

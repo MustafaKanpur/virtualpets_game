@@ -1,0 +1,25 @@
+import javax.swing.SwingUtilities;
+
+import JavaSwing.JFrameListen;
+
+public class Testing {
+
+
+    public static void main (String[] args){
+        // Run this program on the Event Dispatch Thread (EDT)
+        SwingUtilities.invokeLater(new Runnable() {
+            @Override
+            public void run(){
+                //JFrameOne frameOne = new JFrameOne();
+
+                //JFrameTwo frameTwo = new JFrameTwo();
+                
+                Pet testPet = new Pet(100, 100, 100, 100, 100, 100, 100, 100, 10, 10, 10, 10, 20, 20, 20, 20 );
+                GamePlayScreen screen = new GamePlayScreen(testPet);
+                screen.setUpButtonListeners();
+                
+            }
+        });
+    }
+
+}

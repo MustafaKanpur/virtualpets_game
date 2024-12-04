@@ -1,0 +1,38 @@
+public class Item {
+    private int val;
+    private String name;
+    private String objType;
+
+    public Item(int val, String name, String objType){
+        this.val = val;
+        this.name = name;
+        this.objType = objType;
+    }
+
+    public void setVal(int val){
+        this.val = val;
+    }
+
+    public void setName(String name){ 
+        this.name = name;
+    }
+
+    public void setObjType(String type){
+        this.objType = type;
+    }
+
+    public int getVal(){
+        return this.val;
+    }
+
+    public String getName(){
+        return this.name;
+    }
+
+    public String getobjType(){
+        return this.objType;
+    }
+        
+
+
+}

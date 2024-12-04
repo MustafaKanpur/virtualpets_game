@@ -1,0 +1,841 @@
+import com.opencsv.CSVWriter;
+import com.opencsv.exceptions.CsvException;
+
+import java.awt.*;
+import java.awt.event.ActionListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.awt.event.WindowListener;
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.List;
+import java.awt.event.ActionEvent;
+
+public class GamePlayScreen {
+    private Timer statDecayTimer;
+    private Timer regularDecayTimer;
+    private Timer hungerDecayTimer;
+    private Timer sleepDecayTimer;
+    private Timer stateCheckTimer;
+
+
+    
+    public JPanel gamePanel;
+    private JPanel buttonPanel;
+    private JPanel statPanel;
+    private JPanel topPanel;
+
+    private JLabel score;
+    private JLabel health;
+    private JLabel sleepLevel;
+    private JLabel fullness;
+    private JLabel happiness;
+    private JLabel petSprite;
+    
+    private JButton exit;
+    
+    private CardLayout cl;
+   
+
+    public int scoreVal = 0;
+
+    private Pet currentPet;
+    private PetController petControl;
+
+
+    private JButton feed;
+    private JButton play;
+    private JButton exercise;
+    private JButton sleep;
+    private JButton vet;
+    private JButton gift;
+    private JButton inventory;
+    private JFrame frame;
+    private Image backgroundImage;
+    
+    private Timer timer;
+    private Image[] petImages;
+    private Timer animationTimer;
+    private int currentAnimationIndex;
+    private Image[] sleepImages;
+    private Image[] hungryImages;
+    private Image[] angryImages;
+    private Image[] deadImages;
+    private Sound sleepSound;
+    
+    private JPanel panelCont;
+    
+    private JButton settings;
+
+    public GamePlayScreen(Pet pet,JFrame frame, String name, Sound music,CardLayout cl,JPanel panelCont){ // Frame gets passed in as an argument
+    	
+    	this.exit = new JButton("Exit");
+    	this.cl = cl;
+    	this.panelCont = panelCont;
+    	
+    	music.stopSound();
+    	
+    	try {
+    		
+    		if (pet.getDifficulty().equals("hard")) {
+    	    petImages = new Image[]{
+    	        ImageIO.read(new File("src/Pet3/Normal.png")),
+    	        ImageIO.read(new File("src/Pet3/NormalFlip.png")),
+    	    };
+    	    sleepImages = new Image[] {
+    	    		ImageIO.read(new File("src/Pet3/Sleep.png")),
+    	    		ImageIO.read(new File("src/Pet3/Sleepflip.png"))
+    	    };
+    	    hungryImages = new Image[] {
+    	    		ImageIO.read(new File("src/Pet3/Hungry.png")),
+    	    		ImageIO.read(new File("src/Pet3/HungryFlip.png"))
+    	    };
+    	    angryImages = new Image[] {
+    	    		ImageIO.read(new File("src/Pet3/Anger.png")),
+    	    		ImageIO.read(new File("src/Pet3/AngerFlip.png"))
+    	    };
+    	    deadImages = new Image[] {
+    	    		ImageIO.read(new File("src/Pet3/Dead.png"))
+    	    };
+    		}
+    		else if (pet.getDifficulty().equals("medium")) {
+        	    petImages = new Image[]{
+        	        ImageIO.read(new File("src/Pet2/Normal.png")),
+        	        ImageIO.read(new File("src/Pet2/NormalFlip.png")),
+        	    };
+        	    sleepImages = new Image[] {
+        	    		ImageIO.read(new File("src/Pet2/Sleep.png")),
+        	    		ImageIO.read(new File("src/Pet2/Sleepflip.png"))
+        	    };
+        	    hungryImages = new Image[] {
+        	    		ImageIO.read(new File("src/Pet2/Hungry.png")),
+        	    		ImageIO.read(new File("src/Pet2/HungryFlip.png"))
+        	    };
+        	    angryImages = new Image[] {
+        	    		ImageIO.read(new File("src/Pet2/Anger.png")),
+        	    		ImageIO.read(new File("src/Pet2/AngerFlip.png"))
+        	    };
+        	    deadImages = new Image[] {
+        	    		ImageIO.read(new File("src/Pet2/Dead.png"))
+        	    };
+        	    
+        	    
+        		}
+    		
+    		else  {
+        	    petImages = new Image[]{
+        	        ImageIO.read(new File("src/Pet1/Normal.png")),
+        	        ImageIO.read(new File("src/Pet1/NormalFlip.png")),
+        	    };
+        	    sleepImages = new Image[] {
+        	    		ImageIO.read(new File("src/Pet1/Sleep.png")),
+        	    		ImageIO.read(new File("src/Pet1/Sleepflip.png"))
+        	    };
+        	    hungryImages = new Image[] {
+        	    		ImageIO.read(new File("src/Pet1/Hungry.png")),
+        	    		ImageIO.read(new File("src/Pet1/HungryFlip.png"))
+        	    };
+        	    angryImages = new Image[] {
+        	    		ImageIO.read(new File("src/Pet1/Anger.png")),
+        	    		ImageIO.read(new File("src/Pet1/AngerFlip.png"))
+        	    };
+        	    deadImages = new Image[] {
+        	    		ImageIO.read(new File("src/Pet1/Dead.png"))
+        	    };
+        		}
+    	} catch (IOException e) {
+    	    e.printStackTrace();
+    	    petImages = null; // Handle missing images gracefully
+    	}
+
+    	// Set up the animation timer
+    	animationTimer = new Timer(1000, new ActionListener() {
+    	    @Override
+    	    public void actionPerformed(ActionEvent e) {
+    	        // Alternate the animation index
+    	        currentAnimationIndex = (currentAnimationIndex + 1) % petImages.length;
+    	        gamePanel.repaint(); // Trigger a repaint to update the sprite
+    	    }
+    	});
+    	animationTimer.start();
+
+    	
+        try {
+            this.backgroundImage = ImageIO.read(new File("src/resources/bedroom.png"));
+        } catch (IOException e) {
+            e.printStackTrace();
+            this.backgroundImage = null;
+        }
+        this.currentPet = pet;
+        this.frame = frame; // Added the initialization of the frame variable
+        petControl = new PetController(pet);
+        WindowListener listener = new WindowAdapter() {
+            public void windowClosing(WindowEvent e) {
+            	
+            	
+            	FileWriter filewriter = null;
+				try {
+					filewriter = new FileWriter("src/pet_saves/" + name+ ".csv",true);
+				} catch (IOException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+            	CSVWriter csvwriter = new CSVWriter(filewriter);
+                String[] row = {pet.getDifficulty(),name, pet.getHealth()  + "",pet.getSleep()+ "",pet.getFullness()+ "",pet.getHappiness()+ "", pet.getPieCount()+"",pet.getBananaCount()+"",pet.getPizzaCount()+"",pet.getBallCount()+"",pet.getPlushCount()+"",pet.getSwordCount()+"",pet.getScore()+""};
+                csvwriter.writeNext(row); 
+                try {
+					csvwriter.close();
+				} catch (IOException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+            	
+            	
+            	
+            }
+        };
+        
+        this.frame.addWindowListener(listener);
+        
+        initialize();
+    }
+        
+
+    public void decreaseHealth(){
+        currentPet.setHealth(Math.max(0, currentPet.getHealth() - currentPet.getHealthLoss()));
+    }
+
+    public void decreaseSleep(){
+        currentPet.setSleep(Math.max(0, currentPet.getSleep() - currentPet.getSleepLoss()));
+    }
+
+    public void decreaseFullness(){
+        currentPet.setFullness(Math.max(0, currentPet.getFullness() - currentPet.getFullnessLoss()));
+    }
+
+    public void decreaseHappiness(){
+        currentPet.setHappiness(Math.max(0, currentPet.getHappiness() - currentPet.getHappinessLoss()));
+
+    }
+
+    private void increaseScore(){
+        currentPet.increaseScore(15);
+    }
+
+    
+
+    public void initialize(){
+
+        // Lowers stats over time
+        regularDecayTimer = new Timer(5000, new ActionListener() { // 1000 ms = 1 second
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
+                // healthDanger();
+                // fullnessDanger();
+                // sleepDanger();
+                // happinessDanger();
+
+                // Checking for pet status every 5 seconds
+                petControl.checkAngry();
+                petControl.checkDead();
+                petControl.checkHungry();
+                petControl.checkSleep();
+
+                if(currentPet.isSleeping()){
+                    regularDecayTimer.stop();
+                    currentPet.setHealth(currentPet.getHealth() - currentPet.getHealthLoss());
+                    sleepDecayTimer.start();
+                    /*if(!sleepDecayTimer.isRunning())
+                    regularDecayTimer.start();*/
+                }
+
+                if(currentPet.isHungry()){
+                    regularDecayTimer.stop();
+                    hungerDecayTimer.start();
+                    /*if(!hungerDecayTimer.isRunning()){
+                        regularDecayTimer.start();
+                    }*/
+                }
+
+                decreaseFullness();
+                decreaseSleep();
+                decreaseHappiness();
+                increaseScore();
+                updateStats();
+
+            }
+        });
+
+        
+        hungerDecayTimer = new Timer (5000, new ActionListener(){
+            @Override
+            public void actionPerformed(ActionEvent e){
+                petControl.checkAngry();
+                petControl.checkDead();
+                petControl.checkHungry();
+                petControl.checkSleep();    
+
+
+                currentPet.setHappiness(Math.max(0, currentPet.getHappiness() - (currentPet.getHappinessLoss() + 5)));
+                decreaseSleep();
+                decreaseHealth();
+                updateStats();
+
+                if(!currentPet.isHungry()){
+                    hungerDecayTimer.stop();
+                    regularDecayTimer.start();
+                }
+                
+            }
+        });
+
+        
+        sleepDecayTimer = new Timer(1000, new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                petControl.checkAngry();
+                petControl.checkDead();
+                petControl.checkHungry();
+                petControl.checkSleep();
+
+                currentPet.setSleeping(true);
+
+                currentPet.setSleep(Math.max(0, currentPet.getSleep() + currentPet.getSleepGain()));
+                decreaseHappiness();
+                decreaseFullness();
+                updateStats();
+
+                // Stop sleeping when the max sleep level is reached
+                if (currentPet.getSleep() == currentPet.getMaxSleep()) {
+                    currentPet.setSleeping(false);
+                    sleepDecayTimer.stop();
+                    if (sleepSound != null) {
+                        sleepSound.stopSound(); // Stop the sleeping sound
+                    }
+                    regularDecayTimer.start();
+                }
+            }
+        });
+
+
+        
+        // Start the timer
+        regularDecayTimer.start();
+        
+
+
+         // Initializing panels
+        gamePanel = new JPanel() {
+            @Override
+            protected void paintComponent(Graphics g) {
+                super.paintComponent(g);
+
+                // Draw the background
+                if (backgroundImage != null) {
+                    g.drawImage(backgroundImage, 0, 0, getWidth(), getHeight(), this);
+                }
+
+                // Draw the pet sprite based on the current animation frame
+                if (petImages != null && petImages.length > 0 && !currentPet.isSleeping() && !currentPet.isAngry() && !currentPet.isDead() && !currentPet.isHungry()) {
+                    Image petImage = petImages[currentAnimationIndex];
+                    int spriteWidth = 100; // Adjust size as needed
+                    int spriteHeight = 100;
+                    int spriteX = getWidth() / 2 - spriteWidth / 2; // Center horizontally
+                    int spriteY = getHeight() / 2 - spriteHeight / 2; // Center vertically
+                    g.drawImage(petImage, spriteX, spriteY, spriteWidth, spriteHeight, this);
+                }
+                else if (deadImages != null && deadImages.length > 0 && currentPet.isDead()) {
+                    Image petImage = deadImages[0];
+                    int spriteWidth = 100; // Adjust size as needed
+                    int spriteHeight = 100;
+                    int spriteX = getWidth() / 2 - spriteWidth / 2; // Center horizontally
+                    int spriteY = getHeight() / 2 - spriteHeight / 2; // Center vertically
+                    g.drawImage(petImage, spriteX, spriteY, spriteWidth, spriteHeight, this);
+                }
+                
+                else if (sleepImages != null && sleepImages.length > 0 && currentPet.isSleeping()) {
+                    Image petImage = sleepImages[currentAnimationIndex];
+                    int spriteWidth = 100; // Adjust size as needed
+                    int spriteHeight = 100;
+                    int spriteX = getWidth() / 2 - spriteWidth / 2; // Center horizontally
+                    int spriteY = getHeight() / 2 - spriteHeight / 2; // Center vertically
+                    g.drawImage(petImage, spriteX, spriteY, spriteWidth, spriteHeight, this);
+                }
+                else if (hungryImages != null && hungryImages.length > 0 && currentPet.isHungry()) {
+                    Image petImage = hungryImages[currentAnimationIndex];
+                    int spriteWidth = 100; // Adjust size as needed
+                    int spriteHeight = 100;
+                    int spriteX = getWidth() / 2 - spriteWidth / 2; // Center horizontally
+                    int spriteY = getHeight() / 2 - spriteHeight / 2; // Center vertically
+                    g.drawImage(petImage, spriteX, spriteY, spriteWidth, spriteHeight, this);
+                }
+                else if (angryImages != null && angryImages.length > 0 && currentPet.isAngry()) {
+                    Image petImage = angryImages[currentAnimationIndex];
+                    int spriteWidth = 100; // Adjust size as needed
+                    int spriteHeight = 100;
+                    int spriteX = getWidth() / 2 - spriteWidth / 2; // Center horizontally
+                    int spriteY = getHeight() / 2 - spriteHeight / 2; // Center vertically
+                    g.drawImage(petImage, spriteX, spriteY, spriteWidth, spriteHeight, this);
+                }
+            }
+
+        };
+        
+        
+
+         gamePanel.setLayout(new BorderLayout(5, 5));
+         
+         
+         buttonPanel = new JPanel();
+         statPanel = new JPanel();
+         statPanel.setLayout(new BoxLayout(statPanel, BoxLayout.Y_AXIS));
+         statPanel.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
+
+         topPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+
+        // Initializing buttons
+        feed = new JButton("FEED");
+        play = new JButton("PLAY");
+        exercise = new JButton("EXERCISE");
+        sleep = new JButton("SLEEP");
+        vet = new JButton("VET");
+        gift = new JButton("GIFT");
+        inventory = new JButton("INVENTORY");
+        settings = new JButton("SETTINGS");
+
+        // Initializing JLabels
+        score = new JLabel("Score: " + currentPet.getScore());
+        health = new JLabel ("Health: " + currentPet.getHealth());
+        sleepLevel = new JLabel("Sleep: " + currentPet.getSleep());
+        fullness = new JLabel("Fullness: " + currentPet.getFullness());
+        happiness = new JLabel("Happiness: " + currentPet.getHappiness());
+
+        // Filepath should be variable
+        ImageIcon normalState = new ImageIcon("Pet 3 States/Normal.png");
+        petSprite = new JLabel(normalState);
+
+        exit.addActionListener(new ActionListener() {
+        	public void actionPerformed(ActionEvent e) {
+        		cl.show(panelCont,"1");
+        	}
+    });
+        
+        // Adding panels together
+        frame.add(gamePanel);
+        gamePanel.add(buttonPanel, BorderLayout.SOUTH);
+        gamePanel.add(statPanel, BorderLayout.WEST);
+        gamePanel.add(topPanel, BorderLayout.EAST);
+        gamePanel.add(petSprite, BorderLayout.CENTER);
+
+        // Adding functional buttons
+        buttonPanel.add(feed);
+        buttonPanel.add(play);
+        buttonPanel.add(exercise);
+        buttonPanel.add(sleep);
+        buttonPanel.add(gift);
+        buttonPanel.add(vet);
+        buttonPanel.add(inventory);
+
+        // Adding score and stats
+        score.setAlignmentX(Component.LEFT_ALIGNMENT);
+        statPanel.add(score);
+
+        health.setAlignmentX(Component.LEFT_ALIGNMENT);
+        statPanel.add(health);
+
+        fullness.setAlignmentX(Component.LEFT_ALIGNMENT);
+        statPanel.add(fullness);
+
+        sleepLevel.setAlignmentX(Component.LEFT_ALIGNMENT);
+        statPanel.add(sleepLevel);
+
+        happiness.setAlignmentX(Component.LEFT_ALIGNMENT);
+        statPanel.add(happiness);
+
+        
+        // Adding settings button
+        this.setUpButtonListeners();
+        topPanel.add(settings);
+        topPanel.add(exit);
+
+        
+    }
+
+    // Sets up button functionality
+    public void setUpButtonListeners(){
+        ActionListener feedListener = new ActionListener(){
+            @Override
+            public void actionPerformed(ActionEvent ae){
+                if(currentPet.isSleeping()){
+                    JOptionPane.showMessageDialog(frame, "Your pet is sleeping right now!");
+                }
+                else if(currentPet.isAngry()){
+                    JOptionPane.showMessageDialog(frame, "Your pet is too angry for that!");
+                }
+
+                else{
+                	FileWriter filewriter = null;
+                	FileReader filereader = null;
+					try {
+						filereader = new FileReader("src/pet_saves/"+currentPet.getName()+".csv");
+					} catch (IOException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+                	CSVReader csvreader = new CSVReader(filereader);
+
+            		List<String[]> rows = null;
+                	try {
+						rows = csvreader.readAll();
+					} catch (IOException | CsvException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+                	
+                	try {
+						filereader.close();
+					} catch (IOException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
+                	
+                	try {
+						filewriter = new FileWriter("src/pet_saves/"+currentPet.getName()+".csv",true);
+					} catch (IOException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+                	
+                	CSVWriter csvwriter = new CSVWriter(filewriter);
+                	
+                	
+                	
+                	System.out.println("src/pet_saves/"+currentPet.getName()+".csv");
+                	String[] finalRow = rows.get(rows.size()-1);
+                	Object[] options = {"Pie x"+ finalRow[6],"Banana x"+finalRow[7],"Pizza x"+ finalRow[8]};
+                	int option = JOptionPane.showOptionDialog(frame,"What would you like to feed your pet?","Food Options",JOptionPane.YES_NO_CANCEL_OPTION,JOptionPane.QUESTION_MESSAGE,null,options,options[2]);
+                	if (option==0 && Integer.parseInt(finalRow[6])>0) {
+                    	petControl.feedPet();
+                    	petControl.feedPet();
+                    	System.out.println("Feeding Pie");
+                    	currentPet.decrementPieCount();
+                    	csvwriter.writeNext(new String[] {finalRow[0],finalRow[1],finalRow[2],finalRow[3],finalRow[4],finalRow[5],Integer.parseInt(finalRow[6])-1+"",finalRow[7],finalRow[8],finalRow[9],finalRow[10],finalRow[11],currentPet.getScore()+""});
+                    	System.out.println(Integer.parseInt(finalRow[6])-1);
+                    	Sound eatSound = new Sound("src/resources/eating.wav");
+                    	eatSound.playSound();
+                	}
+                	else if (option==1 && Integer.parseInt(finalRow[7])>0) {
+                    	petControl.feedPet();
+                    	currentPet.decrementBananaCount();
+                    	System.out.println("Feeding Banana");
+                    	csvwriter.writeNext(new String[] {finalRow[0],finalRow[1],finalRow[2],finalRow[3],finalRow[4],finalRow[5],finalRow[6],Integer.parseInt(finalRow[7])-1+"",finalRow[8],finalRow[9],finalRow[10],finalRow[11],currentPet.getScore()+""});
+                    	Sound eatSound = new Sound("src/resources/eating.wav");
+                    	eatSound.playSound();
+                	}
+                	else if (option==2 && Integer.parseInt(finalRow[8])>0){
+                		petControl.feedPet();
+                    	petControl.feedPet();
+                    	petControl.feedPet();
+                    	System.out.println("Feeding Pizza");
+                    	currentPet.decrementPizzaCount();
+                    	csvwriter.writeNext(new String[] {finalRow[0],finalRow[1],finalRow[2],finalRow[3],finalRow[4],finalRow[5],finalRow[6],finalRow[7],Integer.parseInt(finalRow[8])-1+"",finalRow[9],finalRow[10],finalRow[11],currentPet.getScore()+""});
+                    	Sound eatSound = new Sound("src/resources/eating.wav");
+                    	eatSound.playSound();
+                	}
+                	else {
+                		System.out.println("Specified Food isn't available");
+                	}
+                	try {
+						filewriter.close();
+					} catch (IOException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+                updateStats();
+                coolDown(feed,1000);
+                }
+                
+            }
+        };
+
+        ActionListener playListener = new ActionListener(){
+            @Override
+            public void actionPerformed(ActionEvent ae){
+                if(currentPet.isSleeping()){
+                    JOptionPane.showMessageDialog(frame, "Your pet is sleeping right now!");
+                }
+                else{
+                petControl.playWithPet();
+                updateStats();
+                }
+                
+            }
+        };
+
+        ActionListener exerciseListener = new ActionListener(){
+            @Override
+            public void actionPerformed(ActionEvent ae){
+                if(currentPet.isSleeping()){
+                    JOptionPane.showMessageDialog(frame, "Your pet is sleeping right now!");
+                }
+                else if(currentPet.isAngry()){
+                    JOptionPane.showMessageDialog(frame, "Your pet is too angry for that!");
+                }
+                else{
+                petControl.exerciseWithPet();
+                updateStats();
+                coolDown(exercise,1000);
+                }
+                
+            }
+        };
+
+
+        ActionListener sleepListener = new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent ae) {
+                if (currentPet.isSleeping()) {
+                    JOptionPane.showMessageDialog(frame, "Your pet is already sleeping!");
+                } else if (currentPet.isAngry()) {
+                    JOptionPane.showMessageDialog(frame, "Your pet is too angry for that!");
+                } else {
+                    sleepSound = new Sound("src/resources/sleeping.wav");
+                    sleepSound.playSound(); // Start playing the sleeping sound
+                    sleepDecayTimer.start();
+                    updateStats();
+                }
+            }
+        };
+
+
+
+        ActionListener giftListener = new ActionListener(){
+            @Override
+            public void actionPerformed(ActionEvent ae){
+                if(currentPet.isSleeping()){
+                    JOptionPane.showMessageDialog(frame, "Your pet is sleeping right now!");
+
+                }
+                else{
+                	FileWriter filewriter = null;
+                	FileReader filereader = null;
+					try {
+						filereader = new FileReader("src/pet_saves/"+currentPet.getName()+".csv");
+					} catch (IOException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+                	CSVReader csvreader = new CSVReader(filereader);
+
+            		List<String[]> rows = null;
+                	try {
+						rows = csvreader.readAll();
+					} catch (IOException | CsvException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+                	
+                	try {
+						filereader.close();
+					} catch (IOException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
+                	
+                	try {
+						filewriter = new FileWriter("src/pet_saves/"+currentPet.getName()+".csv",true);
+					} catch (IOException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+                	
+                	CSVWriter csvwriter = new CSVWriter(filewriter);
+                	
+                	
+                	
+                	System.out.println("src/pet_saves/"+currentPet.getName()+".csv");
+                	String[] finalRow = rows.get(rows.size()-1);
+                	Object[] options = {"Ball x"+finalRow[9],"Plush x"+finalRow[10],"Sword x"+finalRow[11]};
+                	int option = JOptionPane.showOptionDialog(frame,"What would you like to gift your pet?","Gift Options",JOptionPane.YES_NO_CANCEL_OPTION,JOptionPane.QUESTION_MESSAGE,null,options,options[2]);
+                	if (option==0 && Integer.parseInt(finalRow[9])>0) {
+                    	petControl.giftPet();
+                    	System.out.println("Gifting Ball");
+                    	currentPet.decrementBallCount();
+                    	csvwriter.writeNext(new String[] {finalRow[0],finalRow[1],finalRow[2],finalRow[3],finalRow[4],finalRow[5],finalRow[6],finalRow[7],finalRow[8],(Integer.parseInt(finalRow[9])-1)+"",finalRow[10],finalRow[11],currentPet.getScore()+""});
+                    	System.out.println(Integer.parseInt(finalRow[6])-1);
+                	}
+                	else if (option==1 && Integer.parseInt(finalRow[10])>0) {
+                    	petControl.giftPet();
+                    	petControl.giftPet();
+                    	petControl.giftPet();
+                    	currentPet.decrementPlushCount();
+                    	System.out.println("Gifting Plush");
+                    	csvwriter.writeNext(new String[] {finalRow[0],finalRow[1],finalRow[2],finalRow[3],finalRow[4],finalRow[5],finalRow[6],finalRow[7],finalRow[8],finalRow[9],(Integer.parseInt(finalRow[10])-1)+"",finalRow[11],currentPet.getScore()+""});
+                	}
+                	else if (option==2 && Integer.parseInt(finalRow[11])>0){
+                		petControl.giftPet();
+                		petControl.giftPet();
+                    	System.out.println("Gifting Sword");
+                    	currentPet.decrementSwordCount();
+                    	csvwriter.writeNext(new String[] {finalRow[0],finalRow[1],finalRow[2],finalRow[3],finalRow[4],finalRow[5],finalRow[6],finalRow[7],finalRow[8],finalRow[9],finalRow[10],(Integer.parseInt(finalRow[11])-1)+"",currentPet.getScore()+""});
+                	}
+                	else {
+                		System.out.println("Specified Gift isn't available");
+                	}
+                	try {
+						filewriter.close();
+					} catch (IOException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+                updateStats();
+                }
+                
+            }
+        };
+
+        ActionListener vetListener = new ActionListener(){
+            @Override
+            public void actionPerformed(ActionEvent ae){
+                if(currentPet.isSleeping()){
+                    JOptionPane.showMessageDialog(frame, "Your pet is sleeping right now!");
+                }
+                else if(currentPet.isAngry()){
+                    JOptionPane.showMessageDialog(frame, "Your pet is too angry for that!");
+                }
+                else{
+                
+                petControl.petToVet();
+                coolDown(vet, 10000);
+                updateStats();
+                }
+                
+            }
+        };
+
+
+        ActionListener inventoryListener = new ActionListener(){
+            @Override
+            public void actionPerformed(ActionEvent ae){
+                System.out.println("exercised pet");
+                System.out.println(currentPet.getHappiness());
+                updateStats();
+            }
+        };
+
+        ActionListener settingsListener = new ActionListener(){
+            @Override
+            public void actionPerformed(ActionEvent ae){
+                updateStats();
+            }
+        };
+
+        // Adding the listeners to the buttons themselves
+        feed.addActionListener(feedListener);
+        play.addActionListener(playListener);
+        exercise.addActionListener(exerciseListener);
+        sleep.addActionListener(sleepListener);
+        gift.addActionListener(giftListener);
+        vet.addActionListener(vetListener);
+        inventory.addActionListener(inventoryListener);
+        settings.addActionListener(settingsListener);
+
+    }
+
+
+    // Updates pet stats
+    private void updateStats() {
+        score.setText("Score: " + currentPet.getScore());
+        health.setText("Health: " + currentPet.getHealth());
+        sleepLevel.setText("Sleep: " + currentPet.getSleep());
+        fullness.setText("Fullness: " + currentPet.getFullness());
+        happiness.setText("Happiness: " + currentPet.getHappiness());
+        health.setName("Health");
+        sleepLevel.setName("Sleep");
+        fullness.setName("Hunger");
+        happiness.setName("Happiness");
+        score.setName("Score");
+        frame.repaint(); // Ensure the GUI reflects the changes
+
+        //Updates stats so that they turn red when below 25%
+        updateStatLabel(health, currentPet.getHealth(), currentPet.getMaxHealth());
+        updateStatLabel(sleepLevel, currentPet.getSleep(), currentPet.getMaxSleep());
+        updateStatLabel(fullness, currentPet.getFullness(), currentPet.getMaxFullness());
+        updateStatLabel(happiness, currentPet.getHappiness(), currentPet.getMaxHappiness());
+    }
+
+    
+
+    private void deadState(){
+        if (currentPet.isDead() ) {
+            regularDecayTimer.stop(); // Stop the timer if a stat reaches zero
+            JOptionPane.showMessageDialog(frame, "Game Over! Your pet's stats are too low.");
+        }
+    }
+
+
+    private void hungryState(){
+        if(currentPet.isHungry()){
+            JOptionPane.showMessageDialog(frame, "Your pet is hungry, give it some food!");
+        }
+        if(currentPet.getFullness() > 0){
+            currentPet.setHungry(false);
+        }
+        while(currentPet.isHungry()){
+            currentPet.setHappiness(Math.max(0, currentPet.getHappiness() - (currentPet.getHappinessLoss() + 3)));
+            if(currentPet.getFullness() > 0){
+                currentPet.setHungry(false);
+            }
+        }
+        
+    }
+
+    public JPanel getGamePanel() {
+    	return this.gamePanel;
+    }
+    
+    private void sleepingState(){
+        regularDecayTimer.stop();
+        decreaseHealth();
+        regularDecayTimer.start();
+
+        while(currentPet.getSleep() < currentPet.getMaxSleep()){
+            currentPet.setSleep(currentPet.getSleep() + (currentPet.getSleepLoss()*2));
+
+        }
+        currentPet.setSleeping(false);
+    }
+
+    
+    private void coolDown(JButton button, int duration ){
+        button.setEnabled(false);
+
+                Timer cooldownTimer = new Timer(duration, new ActionListener(){
+                    @Override
+                    public void actionPerformed(ActionEvent e){
+                        button.setEnabled(true);
+                    }
+                });
+                cooldownTimer.setRepeats(false);
+                cooldownTimer.start();
+    }
+
+    
+    private void updateStatLabel(JLabel label, int value, int maxValue) {
+        if (value < maxValue * 0.25) { // If below 25%
+            label.setForeground(Color.RED); // Change text color to red
+            label.setFont(new Font(label.getFont().getName(), Font.BOLD, label.getFont().getSize())); // Make it bold
+        } else {
+            label.setForeground(Color.BLACK); // Default text color
+            label.setFont(new Font(label.getFont().getName(), Font.BOLD, label.getFont().getSize())); // Default font
+        }
+        label.setText(label.getName() + ": " + value); // Update label text
+    }
+
+
+
+}
+

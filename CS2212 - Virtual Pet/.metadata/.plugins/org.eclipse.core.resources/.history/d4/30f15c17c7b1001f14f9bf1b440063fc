@@ -1,0 +1,408 @@
+/**
+ * Class that represents the pet, determines it's vital statistics, as well as how much it loses and gains for each stat to allow for pets of different difficulties
+ */
+public class Pet {
+
+    /**
+     * health of the pet
+     */
+    private int health;
+
+    /**
+     * sleep level of the pet
+     */
+    private int sleep;
+
+    /**
+     * fullness level of the pet
+     */
+    private int fullness;
+
+    /**
+     * happiness level of the pet
+     */
+    private int happiness;
+
+    /**
+     * score of the pet
+     */
+    private int score;
+
+    /**
+     * max value for the health of the pet
+     */
+    private int maxHealth;
+
+    /**
+     * max sleep value for the pet
+     */
+    private int maxSleep;
+
+    /**
+     * max fullness value for the pet
+     */
+    private int maxFullness;
+
+    /**
+     * max happiness value for the pet
+     */
+    private int maxHappiness;
+
+    /**
+     * How much health the pet loses 
+     */
+    private int healthLoss;
+
+    /**
+     * How much sleep the pet loses
+     */
+    private int sleepLoss;
+
+    /**
+     * How much fullness the pet loses
+     */
+    private int fullnessLoss;
+
+    /**
+     * How much happiness the pet loses
+     */
+    private int happinessLoss;
+
+    /**
+     * How much happiness the pet gains
+     */
+    public int happinessGain;
+
+    /**
+     * How much sleep the pet gains
+     */
+    public int sleepGain;
+
+    /**
+     * How much fullness the pet gains
+     */
+    public int fullnessGain;
+
+    /**
+     * How much health the pet gains
+     */
+    public int healthGain;
+    
+    /**
+     * Represents the dead state for the pet
+     */
+    private boolean dead;
+
+    /**
+     * Represents the sleeping state for the pet
+     */
+    private boolean sleeping;
+
+    /**
+     * Represents the hungry state for the pet
+     */
+    private boolean hungry;
+
+    /**
+     * Represents the angry state for the pet
+     */
+    private boolean angry;
+    
+    /**
+     * Constructor for the pet, allows for customization to enable pets of differnet difficulties
+     * @param healthVal
+     * @param sleepVal
+     * @param fullnessVal
+     * @param happinessVal
+     * @param maxHealth
+     * @param maxSleep
+     * @param maxFullness
+     * @param maxHappiness
+     * @param healthLoss
+     * @param sleepLoss
+     * @param fullnessLoss
+     * @param happinessLoss
+     * @param healthGain
+     * @param sleepGain
+     * @param fullnessGain
+     * @param happinessGain
+     */
+    public Pet(int healthVal, int sleepVal, int fullnessVal, int happinessVal, int maxHealth, int maxSleep, int maxFullness, int maxHappiness, int healthLoss, int sleepLoss, int fullnessLoss, int happinessLoss, int healthGain, int sleepGain, int fullnessGain, int happinessGain){
+        this.health = healthVal;
+        this.sleep = sleepVal;
+        this.fullness = fullnessVal;
+        this.happiness = happinessVal;
+
+        this.maxHealth = maxHealth;
+        this.maxSleep = maxSleep;
+        this. maxFullness = maxFullness;
+        this. maxHappiness = maxHappiness;
+
+        this.healthLoss = healthLoss;
+        this.sleepLoss = sleepLoss;
+        this.fullnessLoss = fullnessLoss;
+        this.happinessLoss = happinessLoss;
+
+        this.happinessGain = happinessGain;
+        this.sleepGain = sleepGain;
+        this.fullnessGain = fullnessGain;
+        this.healthGain = healthGain;
+    
+        this.dead = false;
+        this.sleeping = false;
+        this.hungry = false;
+        this.angry = false;
+        }
+    
+        /**
+         * Accessor method to get the pet's current score
+         * @return the score of the pet
+         */
+    public int getScore(){
+        return score;
+    }
+
+    /**
+     * Helper method to increase the pet's score by a certain amount
+     * @param amount
+     */
+
+    public void increaseScore(int amount){
+        this.score+=amount;
+    }
+
+    /**
+     * Helper method to decrease the pet's score
+     * @param amount
+     */
+
+    public void decreaseScore(int amount){
+        this.score-=amount;
+    }
+
+    /**
+     * Accessor method to get the current health of the pet
+     * @return the pet's current health
+     */
+    public int getHealth(){
+        return this.health;
+        }
+    
+    /**
+     * Accessor method to get the current sleep value of the pet
+     * @return the pet's current sleep value
+     */
+    public int getSleep(){
+        return this.sleep;
+        }
+    
+    /**
+     * Accessor method to get the current fullness value of the pet
+     * @return the pet's current fullness
+     */
+    public int getFullness(){
+        return this.fullness;
+        }
+    
+    /**
+     * Accessor method to get the pet's current happiness
+     * @return the current happiness of the pet
+     */
+    public int getHappiness(){
+        return this.happiness;
+        }
+    
+    /**
+     * Helper method to set the pet's health, ensures it can't be set higher than the pet's max value for that stat
+     * @param newHealth
+     */
+    public void setHealth(int newHealth){
+        this.health = Math.min(newHealth, this.maxHealth);
+        }
+    
+    /**
+     * Helper method to set the pet's sleep, ensures it can't be set higher than the pet's max value for that stat
+     * @param newSleep
+     */
+    public void setSleep(int newSleep){
+        this.sleep = Math.min(newSleep, this.maxSleep);
+        }
+    
+    /**
+     * Helper method to set the pet's fullness, ensures it can't be set higher than the pet's max value for that stat
+     * @param newFull
+     */
+    public void setFullness(int newFull){
+        this.fullness = Math.min(newFull,this.maxFullness);
+        }
+    
+    /**
+     * Helper method to set the pet's happiness, ensures it can't be set higher than the pet's max value for that stat
+     * @param newHappy
+     */
+    public void setHappiness(int newHappy){
+        this.happiness = Math.min(newHappy,this.maxHappiness);
+        }
+    
+    /**
+     * Accessor method for the value of how much health the pet loses per loss action
+     * @return the health loss value
+     */
+    public int getHealthLoss(){
+        return this.healthLoss;
+    }
+
+    /**
+     * Accessor method for the value of how much sleep the pet loses per loss action
+     * @return the sleep loss value
+     */
+    public int getSleepLoss(){
+        return this.sleepLoss;
+    }
+
+    /**
+     * Accessor method for the value of how much fullness the pet loses per loss action
+     * @return the fullness loss value
+     */
+    public int getFullnessLoss(){
+        return this.fullnessLoss;
+    }
+
+    /**
+     * Accessor method for the value of how much happiness the pet loses per loss action
+     * @return the fullness loss value
+     */
+    public int getHappinessLoss(){
+        return this.happinessLoss;
+    }
+
+    /**
+     * Accessor method for the value of how much health the pet gains per gain action
+     * @return the health gain value
+     */
+    public int getHealthGain(){
+        return this.healthGain;
+    }
+
+    /**
+     * Accessor method for how much sleep the pet gains per gain action
+     * @return the sleep gain value
+     */
+    public int getSleepGain(){
+        return this.sleepGain;
+    }
+
+    /**
+     * Accessor method for how much fullness the pet gains per gain action
+     * @return the fullness gain value
+     */
+    public int getFullnessGain(){
+        return this.fullnessGain;
+    }
+
+    /**
+     * Accessor method for how much happiness the pet gains per gain action
+     * @return the pet gain value
+     */
+    public int getHappinessGain(){
+        return this.happinessGain;
+    }
+
+    /**
+     * Accessor method for the pet's max health value
+     * @return the pet's max health
+     */
+    public int getMaxHealth(){
+        return this.maxHealth;
+    }
+
+    /**
+     * Accessor method for the pet's max fullness value
+     * @return the pet's max fullness
+     */
+    public int getMaxFullness(){
+        return this.maxFullness;
+    }
+
+    /**
+     * Accessor method for the pet's max sleep value
+     * @return the pet's max sleep
+     */
+    public int getMaxSleep(){
+        return this.maxSleep;
+    }
+
+    /**
+     * Accessor method for the pet's max happiness value
+     * @return the pet's max happiness
+     */
+    public int getMaxHappiness(){
+        return this.maxHappiness;
+    }
+    
+    
+    /**
+     * Checker method to see if the pet is dead or not
+     * @return true or false for if the pet is dead 
+     */
+    public boolean isDead(){
+        return this.dead;
+        }
+    
+    
+    /**
+     * Checker method to see if the pet is sleeping or not
+     * @return true or false for if the pet is sleeping 
+     */
+    public boolean isSleeping(){
+        return this.sleeping;
+        }
+    
+    /**
+     * Checker method to see if the pet is hungry or not
+     * @return true or false for if the pet is hungry
+     */
+    public boolean isHungry(){
+        return this.hungry;
+        }
+    
+    /**
+     * Checker method to see if the pet is angry or not
+     * @return true or false for if the pet is angry 
+     */
+    public boolean isAngry(){
+        return this.angry;
+        }
+    
+    /**
+     * Helper method to set the pet as dead
+     * @param deadVal
+     */
+    public void setDead(boolean deadVal){
+        this.dead = deadVal;
+        }
+    
+    /**
+     * Helper method to set the pet as sleeping
+     * @param sleepVal
+     */
+    public void setSleeping(boolean sleepVal){
+        this.sleeping = sleepVal;
+        }
+    
+    /**
+     * Helper method to set the pet as hungry
+     * @param hungryVal
+     */
+    public void setHungry(boolean hungryVal){
+        this.hungry = hungryVal;
+        }
+    
+    /**
+     * Helper method to set the pet as angry
+     * @param angryVal
+     */
+    public void setAngry(boolean angryVal){
+        this.angry = angryVal;
+        }
+}

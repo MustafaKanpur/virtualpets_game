@@ -1,0 +1,53 @@
+import java.awt.CardLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.io.File;
+
+import javax.swing.JButton;
+import javax.swing.JComboBox;
+import javax.swing.JPanel;
+
+public class LoadGameScreen extends JPanel {
+
+    private JComboBox<String> dropdown;
+    private JButton start;
+    private GamePlayScreen gamePlayScreen;
+    private Pet loadedPet;
+
+    public LoadGameScreen(CardLayout cl, JPanel panelCont) {
+    	
+    	start = new JButton();
+        // Initialize the dropdown
+        dropdown = new JComboBox<>();
+       
+        
+        // Directory where save files are stored
+        File dir = new File("src/pet_saves/");
+        File[] directoryListing = dir.listFiles();
+        
+        if (directoryListing != null) {
+            for (File child : directoryListing) {
+                // Add the file name to the dropdown
+                if (child.isFile()) {
+                    dropdown.addItem(child.getName());
+                }
+            }
+        } else {
+            // Optional: Handle the case where the directory does not exist
+            System.out.println("Directory not found: " + dir.getAbsolutePath());
+        }
+        
+        // Add the dropdown to the JPanel
+        this.add(dropdown);
+        
+        gamePlayScreen = new GamePlayScreen(new Pet());
+        
+        start.addActionListener(new ActionListener() {
+        	public void actionPerformed(ActionEvent e) {
+            	cl.show(panelCont, "8");
+        	}
+        });
+    }
+    	
+}
+    

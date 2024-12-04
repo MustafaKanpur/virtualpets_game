@@ -1,0 +1,107 @@
+import java.awt.CardLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.List;
+
+import javax.swing.JButton;
+import javax.swing.JComboBox;
+import javax.swing.JFrame;
+import javax.swing.JPanel;
+
+import com.opencsv.CSVReader;
+import com.opencsv.exceptions.CsvException;
+
+public class LoadGameScreen extends JPanel {
+
+    private JComboBox<String> dropdown;
+    private JButton start;
+    private GamePlayScreen gamePlayScreen;
+    private CSVReader csvreader;
+    private FileReader filereader;
+
+    public LoadGameScreen(CardLayout cl, JPanel panelCont,JFrame frame,Sound music) {
+
+    	
+    	start = new JButton("Load");
+        // Initialize the dropdown
+        dropdown = new JComboBox<>();
+       
+        
+        // Directory where save files are stored
+        File dir = new File("src/pet_saves/");
+        File[] directoryListing = dir.listFiles();
+        
+        if (directoryListing != null) {
+            for (File child : directoryListing) {
+                // Add the file name to the dropdown
+                if (child.isFile()) {
+                    dropdown.addItem(child.getName());
+                }
+            }
+        } else {
+            // Optional: Handle the case where the directory does not exist
+            System.out.println("Directory not found: " + dir.getAbsolutePath());
+        }
+        
+        // Add the dropdown to the JPanel
+        this.add(dropdown);
+        
+    	
+        
+        //gamePlayScreen = new GamePlayScreen(loadedPet,);
+        
+        start.addActionListener(new ActionListener() {
+        	public void actionPerformed(ActionEvent e) {
+        		FileReader filereader = null;
+				try {
+					filereader = new FileReader("src/pet_saves/"+dropdown.getSelectedItem().toString());
+				} catch (FileNotFoundException e2) {
+					// TODO Auto-generated catch block
+					e2.printStackTrace();
+				}
+        		CSVReader csvreader = new CSVReader(filereader);
+        		Pet loadedPet;
+        		
+        		List<String[]> rows = null;
+				try {
+					rows = csvreader.readAll();
+				} catch (IOException | CsvException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+        		
+        		String[] lastRow = rows.get(rows.size()-1);
+        		
+        		if (lastRow[0].equals("easy")) {
+                	loadedPet = new Pet("easy",Integer.parseInt(lastRow[2]),Integer.parseInt(lastRow[3]),Integer.parseInt(lastRow[4]),Integer.parseInt(lastRow[5]),100,100,100,100,1,1,1,1,10,10,10,10,Integer.parseInt(lastRow[6]),Integer.parseInt(lastRow[7]),Integer.parseInt(lastRow[8]),Integer.parseInt(lastRow[9]),Integer.parseInt(lastRow[10]),Integer.parseInt(lastRow[11]),lastRow[1],Integer.parseInt(lastRow[12]));
+        		}
+        		else if (lastRow[0].equals("medium")) {
+        			loadedPet = new Pet("medium",Integer.parseInt(lastRow[2]),Integer.parseInt(lastRow[3]),Integer.parseInt(lastRow[4]),Integer.parseInt(lastRow[5]),100,100,100,100,2,2,2,2,8,8,8,8,Integer.parseInt(lastRow[6]),Integer.parseInt(lastRow[7]),Integer.parseInt(lastRow[8]),Integer.parseInt(lastRow[9]),Integer.parseInt(lastRow[10]),Integer.parseInt(lastRow[11]),lastRow[1],Integer.parseInt(lastRow[12]));
+        		}
+        		else {
+        			loadedPet = new Pet("hard",Integer.parseInt(lastRow[2]),Integer.parseInt(lastRow[3]),Integer.parseInt(lastRow[4]),Integer.parseInt(lastRow[5]),100,100,100,100,3,3,3,3,6,6,6,6,Integer.parseInt(lastRow[6]),Integer.parseInt(lastRow[7]),Integer.parseInt(lastRow[8]),Integer.parseInt(lastRow[9]),Integer.parseInt(lastRow[10]),Integer.parseInt(lastRow[11]),lastRow[1],Integer.parseInt(lastRow[12]));
+        		}
+        		
+        		try {
+					filereader.close();
+				} catch (IOException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+        		gamePlayScreen = new GamePlayScreen(loadedPet,frame,lastRow[1],music);
+        		
+        		panelCont.add(gamePlayScreen.getGamePanel(),"8");
+        		
+            	cl.show(panelCont, "8");
+        	}
+        });
+        
+        this.add(start);
+    }
+    	
+}
+    

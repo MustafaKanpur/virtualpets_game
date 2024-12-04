@@ -1,0 +1,64 @@
+
+public class PetController {
+    private Pet currentPet;
+
+    
+
+    
+
+    public PetController(Pet pet){
+        currentPet = pet;
+    }
+
+    public void playWithPet(){
+        currentPet.setHappiness(currentPet.getHappiness() + currentPet.getHappinessGain());
+        if(currentPet.getHealth() < currentPet.getMaxHealth()){
+            currentPet.increaseScore(20);
+        }
+        
+    }
+
+    public void exerciseWithPet(){
+        currentPet.setHealth(currentPet.getHealth() + currentPet.getHealthGain());
+        currentPet.setSleep(currentPet.getSleep() - currentPet.getSleepLoss());
+        currentPet.setFullness(currentPet.getFullness() - currentPet.getFullnessLoss());
+        currentPet.increaseScore(20);
+
+    
+    }
+
+    public void petToVet(){
+        currentPet.setHealth(currentPet.getHealth() + currentPet.getHealthGain());
+
+        currentPet.decreaseScore(5);
+    }
+
+    public void petSleep(){
+        currentPet.setSleep(currentPet.getSleep() + currentPet.getSleepGain());
+
+        if(currentPet.getSleep() < currentPet.getMaxSleep()){
+            currentPet.increaseScore(15);
+
+        }
+    }
+
+    public void feedPet(){
+        // 3 is a placeholder value, replace it with variable for food item value
+        currentPet.setFullness(currentPet.getFullness() + currentPet.getFullnessGain());
+
+        if(currentPet.getFullness() < currentPet.getMaxFullness()){
+            currentPet.increaseScore(15);
+
+        }
+    }
+
+    public void giftPet(){
+        // same as above
+        currentPet.setHappiness(currentPet.getHappiness() + currentPet.getHappinessGain());
+
+        if(currentPet.getHappiness() < currentPet.getMaxHappiness()){
+            currentPet.increaseScore(20);
+
+        }
+    }
+}

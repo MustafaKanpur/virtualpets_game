@@ -1,0 +1,27 @@
+import java.io.*;
+import java.lang.*;
+import java.util.*;
+
+public class Inventory {
+    private Item[] Inventory;
+
+    public Inventory(){
+        Inventory = new Item[8];
+    }
+
+    public void addItem(Item item){
+        List<Item> inventoryList = new ArrayList<Item>(Arrays.asList(this.Inventory));
+
+        inventoryList.add(item);
+
+        this.Inventory = inventoryList.toArray(this.Inventory);
+    }
+
+    public void removeItem(Item item){
+        List<Item> inventoryList = new ArrayList<Item>(Arrays.asList(this.Inventory));
+
+        inventoryList.remove(item);
+
+        this.Inventory = inventoryList.toArray(this.Inventory);
+    }
+}

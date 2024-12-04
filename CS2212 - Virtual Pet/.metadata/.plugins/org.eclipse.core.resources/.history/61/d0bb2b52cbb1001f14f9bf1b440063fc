@@ -1,0 +1,530 @@
+// Importing the necessary libraries
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.awt.event.WindowListener;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.time.LocalTime;
+import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
+import javax.swing.*;
+
+import com.opencsv.CSVReader;
+import com.opencsv.CSVWriter;
+import com.opencsv.exceptions.CsvException;
+
+/**
+ * The MainMenu class represents the main menu of the VPets game. It provides 
+ * navigation to other screens such as parental controls, instructions, 
+ * new game, and load game. It also manages animations, custom fonts, and 
+ * parental control restrictions.
+ */
+@SuppressWarnings("serial")
+public class MainMenu extends JFrame {
+
+    // Class Fields
+    private Font customFont; // Custom font loaded from file
+    private JLabel animatedLabel; // Label to display animation
+    private JLabel titleLabel; // Title label for the main menu
+    private ImageIcon[] animationFrames; // Array of frames for animation
+    private int currentFrame = 0; // Tracks the current animation frame
+    private JPanel panelCont; // Main container panel with card layout
+    private CardLayout cl; // CardLayout for switching between screens
+    
+    private LoadGameScreen loadGameScreen; // Screen for loading saved games
+    private ParentalControlScreen parentalControlScreen; // Parental controls screen
+    private long start; // Time tracking for parental controls
+    private PasscodeScreen passwordScreen; // Screen for entering parental passcode
+    private LocalTime localtime; // Tracks the current time
+    private javax.swing.Timer timer; // Timer for updating time
+
+    private InstructionScreen instructionScreen; // Screen with game instructions
+    private NewGameScreen newGameScreen; // Screen for starting a new game
+
+    private Sound mainMenuMusic; // Background music for the main menu
+
+    /**
+     * Constructs the MainMenu object. Initializes the UI components, 
+     * loads resources, and sets up navigation between screens.
+     * 
+     * @throws IOException if an error occurs during file operations
+     * @throws CsvException if an error occurs during CSV parsing
+     */
+    public MainMenu() throws IOException, CsvException {
+    	
+        mainMenuMusic = new Sound("src/resources/audiofile.wav");
+        mainMenuMusic.playSound();
+    	
+        this.start = System.nanoTime();
+    	
+        this.panelCont = new JPanel();
+        this.cl = new CardLayout();
+        new PasscodeScreen(cl, panelCont);
+        this.passwordScreen = new PasscodeScreen(cl, panelCont);
+        this.parentalControlScreen = new ParentalControlScreen(cl,panelCont,this);
+    	this.instructionScreen = new InstructionScreen(this,cl,panelCont);
+    	this.newGameScreen = new NewGameScreen(this,cl,panelCont,mainMenuMusic);
+    	this.loadGameScreen = new LoadGameScreen(cl,panelCont,this,mainMenuMusic);
+        
+        this.timer = new javax.swing.Timer(1000, (ActionListener) new ActionListener() {
+            public void actionPerformed(ActionEvent evt) {
+            	localtime = LocalTime.now();
+            }
+        });
+        
+        this.timer.start();
+        
+        WindowListener listener = new WindowAdapter() {
+            public void windowClosing(WindowEvent e) {
+            	
+            	String[] lastRow = null;
+            	
+                try (CSVReader reader = new CSVReader(new FileReader("src/resources/parental_controls.csv"))) {
+                    // Read all rows into a list
+                    List<String[]> rows = reader.readAll();
+                    
+                    if (rows.isEmpty()==false) {
+                        // Get the last row
+                        lastRow = rows.get(rows.size() - 1);
+                    } 
+                } catch (IOException e1) {
+                    e1.printStackTrace();
+                } catch (CsvException e1) {
+					e1.printStackTrace();
+				}
+                
+                try { 
+                    // create FileWriter object with file as parameter 
+                    FileWriter outputfile = new FileWriter("src/resources/parental_controls.csv", true); 
+              
+                    CSVWriter writer = new CSVWriter(outputfile);
+                    
+                    long end = System.nanoTime();
+              
+                    String[] header = {Integer.parseInt(lastRow[0]) + 1 + "",(end-start)/1000000000 + Integer.parseInt(lastRow[1]) + "", ((end-start)/1000000000 + Integer.parseInt(lastRow[1]))/(Integer.parseInt(lastRow[0]) + 1)  + "", lastRow[3]+"",lastRow[4]+"",lastRow[5]+"",lastRow[6]+"" };
+                    writer.writeNext(header); 
+              
+                    // closing writer connection 
+                    writer.close(); 
+                } 
+                catch (IOException e2) { 
+                    // TODO Auto-generated catch block 
+                    e2.printStackTrace(); 
+                }
+                
+                
+                try (CSVReader reader = new CSVReader(new FileReader("src/resources/parental_controls.csv"))) {
+                    // Read all rows into a list
+                    List<String[]> rows = reader.readAll();
+                    
+                    if (rows.isEmpty()==false) {
+                        // Get the last row
+                        lastRow = rows.get(rows.size() - 1);
+                    } 
+                } catch (IOException e1) {
+                    e1.printStackTrace();
+                } catch (CsvException e1) {
+					e1.printStackTrace();
+				}
+                
+                try { 
+                    // create FileWriter object with file as parameter 
+                    FileWriter outputfile = new FileWriter("src/resources/parental_controls.csv", true); 
+              
+                    CSVWriter writer = new CSVWriter(outputfile);
+                    
+                    long end = System.nanoTime();
+                    
+                    String[] header = {Integer.parseInt(lastRow[0]) + 1 + "",(end-start)/1000000000 + Integer.parseInt(lastRow[1]) + "", ((end-start)/1000000000 + Integer.parseInt(lastRow[1]))/(Integer.parseInt(lastRow[0]) + 1)  + "", lastRow[3]+"",lastRow[4]+"",lastRow[5]+"",lastRow[6]+"" };
+                    writer.writeNext(header); 
+              
+                    // closing writer connection 
+                    writer.close(); 
+                } 
+                catch (IOException e2) { 
+                    // TODO Auto-generated catch block 
+                    e2.printStackTrace(); 
+                }
+                
+                }
+
+            
+        };
+        // Load the custom font from the provided file
+        loadCustomFont();
+
+        // Set up the JFrame
+        this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        this.setSize(500, 500);
+        this.setTitle("VPets - Main Menu");
+        this.setLocationRelativeTo(null);
+
+        // Create a background panel with the uploaded image
+        JPanel backgroundPanel = new BackgroundPanel("src/resources/background.jpg");
+        backgroundPanel.setLayout(new BorderLayout());
+
+        // Set up the main panel with a BoxLayout for center alignment
+        JPanel mainPanel = new JPanel();
+        mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
+        mainPanel.setOpaque(false); // Make the main panel transparent to show the background
+
+        // Load and add animated images
+        animatedLabel = new JLabel();
+        animationFrames = new ImageIcon[]{
+            new ImageIcon("src/resources/Walk.png"),       // First frame
+            new ImageIcon("src/resources/WalkFlip.png")    // Second frame
+        };
+        animatedLabel.setIcon(animationFrames[currentFrame]);
+        animatedLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+        mainPanel.add(animatedLabel);
+
+        // Start animation
+        startAnimation();
+
+        // Add the title label with the custom font
+        titleLabel = new JLabel("VPets");
+        if (customFont != null) {
+            titleLabel.setFont(customFont.deriveFont(Font.BOLD, 120f)); // Larger Piacevoli font at 120pt size
+        } else {
+            titleLabel.setFont(new Font("SansSerif", Font.BOLD, 120)); // Fallback font
+        }
+        titleLabel.setForeground(Color.BLACK); // Set title color to black
+        titleLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+        // Create buttons
+        JButton loadGameButton = createButton("Load Game");
+        JButton newGameButton = createButton("New Game");
+        
+        newGameButton.addActionListener(new ActionListener() {
+        	
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				
+				FileReader filereader = null;
+				try {
+					filereader = new FileReader("src/resources/parental_controls.csv");
+				} catch (FileNotFoundException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+				try (CSVReader csvreader = new CSVReader(filereader)) {
+					List<String[]> rows = null;
+					try {
+						rows = csvreader.readAll();
+					} catch (IOException | CsvException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
+					
+					String[] lastRow = rows.get(rows.size()-1);
+					
+					if (Integer.parseInt(lastRow[3])>localtime.getHour() || Integer.parseInt(lastRow[5])<localtime.getHour() || (Integer.parseInt(lastRow[3])==localtime.getHour() && Integer.parseInt(lastRow[4])>localtime.getMinute()) || (Integer.parseInt(lastRow[5])==localtime.getHour() && Integer.parseInt(lastRow[6])<localtime.getMinute())) {
+						JOptionPane.showMessageDialog(null, "Not allowed to play at the current time", "Time Restriction", JOptionPane.ERROR_MESSAGE);
+						System.out.println(lastRow[6]);
+					}
+					else {
+						cl.show(panelCont, "5");
+					}
+				} catch (NumberFormatException | HeadlessException | IOException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+				
+				
+			}
+        	
+        });
+        
+        loadGameButton.addActionListener(new ActionListener() {
+        	
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				
+				FileReader filereader = null;
+				try {
+					filereader = new FileReader("src/resources/parental_controls.csv");
+				} catch (FileNotFoundException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+				try (CSVReader csvreader = new CSVReader(filereader)) {
+					List<String[]> rows = null;
+					try {
+						rows = csvreader.readAll();
+					} catch (IOException | CsvException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
+					
+					String[] lastRow = rows.get(rows.size()-1);
+					
+					if (Integer.parseInt(lastRow[3])>localtime.getHour() || Integer.parseInt(lastRow[5])<localtime.getHour() || (Integer.parseInt(lastRow[3])==localtime.getHour() && Integer.parseInt(lastRow[4])>localtime.getMinute()) || (Integer.parseInt(lastRow[5])==localtime.getHour() && Integer.parseInt(lastRow[6])<localtime.getMinute())) {
+						JOptionPane.showMessageDialog(null, "Not allowed to play at the current time", "Time Restriction", JOptionPane.ERROR_MESSAGE);
+					}
+					else {
+						cl.show(panelCont, "7");
+					}
+				} catch (NumberFormatException | HeadlessException | IOException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+				
+				
+			}
+        	
+        });
+        
+        	
+        
+        JButton instructionsButton = createButton("Instructions");
+        JButton parentalControlsButton = createButton("Parental Controls");
+        parentalControlsButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(java.awt.event.ActionEvent e) {
+                    cl.show(panelCont,"2");
+            }
+            });
+        JButton exitButton = createButton("Exit");
+        
+        exitButton.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+            	String[] lastRow = null;
+            	System.out.println("Closing");
+            	
+                try (CSVReader reader = new CSVReader(new FileReader("src/resources/parental_controls.csv"))) {
+                    // Read all rows into a list
+                    List<String[]> rows = reader.readAll();
+                    
+                    if (rows.isEmpty()==false) {
+                        // Get the last row
+                        lastRow = rows.get(rows.size() - 1);
+                    } 
+                } catch (IOException e1) {
+                    e1.printStackTrace();
+                } catch (CsvException e1) {
+					e1.printStackTrace();
+				}
+                
+                try { 
+                    // create FileWriter object with file as parameter 
+                    FileWriter outputfile = new FileWriter("src/resources/parental_controls.csv", true); 
+              
+                    CSVWriter writer = new CSVWriter(outputfile);
+                    
+                    long end = System.nanoTime();
+              
+                    String[] header = {Integer.parseInt(lastRow[0]) + 1 + "",(end-start)/1000000000 + Integer.parseInt(lastRow[1]) + "", ((end-start)/1000000000 + Integer.parseInt(lastRow[1]))/(Integer.parseInt(lastRow[0]) + 1)  + "", lastRow[3]+"",lastRow[4]+"",lastRow[5]+"",lastRow[6]+"" };
+                    writer.writeNext(header); 
+              
+                    // closing writer connection 
+                    writer.close(); 
+                } 
+                catch (IOException e2) { 
+                    // TODO Auto-generated catch block 
+                    e2.printStackTrace(); 
+                }
+                System.exit(0);
+
+            }
+        });
+
+
+        // Add components to the main panel
+        mainPanel.add(titleLabel);
+        mainPanel.add(Box.createVerticalStrut(20)); // Spacer
+        mainPanel.add(loadGameButton);
+        mainPanel.add(Box.createVerticalStrut(10)); // Spacer
+        mainPanel.add(newGameButton);
+        mainPanel.add(Box.createVerticalStrut(10)); // Spacer
+        mainPanel.add(instructionsButton);
+        mainPanel.add(Box.createVerticalStrut(10)); // Spacer
+        mainPanel.add(parentalControlsButton);
+        mainPanel.add(Box.createVerticalStrut(20)); // Spacer
+        mainPanel.add(exitButton);
+
+        // Add footer text
+        JLabel footerLabel = new JLabel("Created by Group 35: Fall 2024, CS2212 at Western University");
+        footerLabel.setFont(new Font("SansSerif", Font.PLAIN, 12));
+        footerLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+        // Create the main container with layout (no border now)
+        JPanel container = new JPanel(new BorderLayout());
+        container.setOpaque(false); // Transparent container to show the background
+        container.add(mainPanel, BorderLayout.CENTER);
+        container.add(footerLabel, BorderLayout.SOUTH);
+
+        // Add settings button in the top-left corner
+        JButton settingsButton = createSettingsButton();
+        JPanel settingsOverlay = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
+        settingsOverlay.setOpaque(false); // Transparent background for overlay
+        settingsOverlay.add(settingsButton);
+
+        // Add everything to the background panel
+        backgroundPanel.add(container, BorderLayout.CENTER);
+        backgroundPanel.add(settingsOverlay, BorderLayout.NORTH);
+        
+        
+        panelCont.setLayout(cl);
+        panelCont.add(backgroundPanel,"1");
+        panelCont.add(passwordScreen,"2");
+        panelCont.add(parentalControlScreen,"3");
+        panelCont.add(instructionScreen,"4");
+        panelCont.add(newGameScreen,"5");
+        panelCont.add(loadGameScreen,"7");
+      
+        
+        
+        instructionsButton.addActionListener(new ActionListener() {
+			@Override
+			/**
+			 *  Shows the instructions screen when the instructions button is clicked
+			 * @param e ActionEvent to represent an action taking place on the button like a click
+			 */
+			public void actionPerformed(ActionEvent e) {
+				cl.show(panelCont, "4");
+			}
+        });
+        
+        cl.show(panelCont,"1");
+        
+        
+        this.setTitle("Game"); // Setting the title of the game
+        this.setPreferredSize(new Dimension(1000,500)); // Setting the preferred size for the window
+        this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); // Closing the JFrame when the window is closed
+        this.pack();
+        this.add(panelCont); // Adding the container panel
+        this.addWindowListener(listener); // Adding the window listener
+        
+
+        this.setVisible(true); // Setting the frame to be visible
+        
+        
+    }
+    
+    /**
+     * Resets the start time used for tracking parental control session durations.
+     */
+    public void resetStart() {
+    	this.start = System.nanoTime();
+    }
+
+    /**
+     * Loads the custom font from a specific file path. 
+     * If the font cannot be loaded, falls back to a default font.
+     */
+    private void loadCustomFont() {
+        try {
+            // Load font from src/resources/Piacevoli.ttf
+            File fontFile = new File("src/resources/Piacevoli.ttf");
+            customFont = Font.createFont(Font.TRUETYPE_FONT, fontFile);
+            GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
+            ge.registerFont(customFont); // Register the font
+        } catch (IOException | FontFormatException e) {
+            System.out.println("Failed to load custom font. Using default font.");
+            e.printStackTrace();
+        }
+    }
+    
+    /**
+     * Creates a settings button with an icon and attaches an action listener
+     * to display the settings menu.
+     * 
+     * @return a JButton representing the settings button
+     */
+    private JButton createSettingsButton() {
+        // Load the gear icon
+        ImageIcon gearIcon = new ImageIcon("src/resources/gear.png");
+        JButton settingsButton = new JButton(gearIcon);
+        settingsButton.setPreferredSize(new Dimension(40, 40));
+        settingsButton.setContentAreaFilled(false);
+        settingsButton.setBorderPainted(false);
+        settingsButton.setFocusPainted(false);
+        
+        // Add action to open settings
+        settingsButton.addActionListener(e -> JOptionPane.showMessageDialog(this, "Settings menu"));
+        
+        return settingsButton;
+    }
+
+    /**
+     * Creates a button with consistent styling and text.
+     * 
+     * @param text the text to display on the button
+     * @return a JButton with the specified text and styling
+     */
+    private JButton createButton(String text) {
+        JButton button = new JButton(text);
+        button.setFont(new Font("SansSerif", Font.PLAIN, 18));
+        button.setFocusPainted(false);
+        button.setAlignmentX(Component.CENTER_ALIGNMENT);
+        return button;
+    }
+
+    /**
+     * Starts an animation by cycling through frames at a fixed interval.
+     */
+    private void startAnimation() {
+        Timer timer = new Timer();
+        timer.scheduleAtFixedRate(new TimerTask() {
+            @Override
+            public void run() {
+                currentFrame = (currentFrame + 1) % animationFrames.length;
+                animatedLabel.setIcon(animationFrames[currentFrame]);
+            }
+        }, 0, 500); // Change frames every 500 milliseconds (0.5 seconds)
+    }
+
+    /**
+     * A custom JPanel class to display a background image.
+     */
+    private static class BackgroundPanel extends JPanel {
+        private Image backgroundImage;
+
+        
+        /**
+         * Constructs a BackgroundPanel with the specified image path.
+         * 
+         * @param imagePath the path to the background image
+         */
+        public BackgroundPanel(String imagePath) {
+            try {
+                backgroundImage = new ImageIcon(imagePath).getImage();
+            } catch (Exception e) {
+                System.out.println("Failed to load background image: " + imagePath);
+            }
+        }
+
+        /**
+         * Paints the background image to fit the panel's dimensions.
+         * 
+         * @param g the Graphics object for rendering
+         */
+        @Override
+        protected void paintComponent(Graphics g) {
+            super.paintComponent(g);
+            if (backgroundImage != null) {
+                g.drawImage(backgroundImage, 0, 0, getWidth(), getHeight(), this);
+            }
+        }
+    }
+
+    
+    /**
+     * The main method to launch the MainMenu application.
+     * 
+     * @param args command-line arguments (not used)
+     * @throws IOException if an error occurs during file operations
+     * @throws CsvException if an error occurs during CSV parsing
+     */
+    public static void main(String[] args) throws IOException, CsvException {
+        new MainMenu(); // Launch the main menu screen
+    }
+}

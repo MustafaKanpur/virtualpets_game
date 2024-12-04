@@ -1,0 +1,16 @@
+import java.awt.Image;
+
+import javax.swing.ImageIcon;
+import javax.swing.JPanel;
+
+public class MainMenuScreen extends JPanel {
+    private Image backgroundImage;
+
+    public MainMenuScreen(String imagePath) {
+        try {
+            backgroundImage = new ImageIcon(imagePath).getImage();
+        } catch (Exception e) {
+            System.out.println("Failed to load background image: " + imagePath);
+        }
+    }
+}

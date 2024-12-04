@@ -1,0 +1,263 @@
+import java.util.Random;
+
+/**
+ * Class to represent a virtual pet with attributes and behaviors.
+ */
+public class Pet {
+
+    // Attributes related to the pet's state
+    /** Current health of the pet. */
+    private int health;
+
+    /** Current sleep level of the pet. */
+    private int sleep;
+
+    /** Current fullness level of the pet. */
+    private int fullness;
+
+    /** Current happiness level of the pet. */
+    private int happiness;
+
+    /** Current score of the pet. */
+    private int score;
+
+    // Maximum possible values for attributes
+    /** Maximum health value the pet can have. */
+    private int maxHealth;
+
+    /** Maximum sleep value the pet can have. */
+    private int maxSleep;
+
+    /** Maximum fullness value the pet can have. */
+    private int maxFullness;
+
+    /** Maximum happiness value the pet can have. */
+    private int maxHappiness;
+
+    // Attribute loss rates over time
+    /** Rate at which health decreases over time. */
+    private int healthLoss;
+
+    /** Rate at which sleep decreases over time. */
+    private int sleepLoss;
+
+    /** Rate at which fullness decreases over time. */
+    private int fullnessLoss;
+
+    /** Rate at which happiness decreases over time. */
+    private int happinessLoss;
+
+    // Attribute gain rates from activities or items
+    /** Amount of happiness gained from certain actions or items. */
+    public int happinessGain;
+
+    /** Amount of sleep gained from certain actions or items. */
+    public int sleepGain;
+
+    /** Amount of fullness gained from certain actions or items. */
+    public int fullnessGain;
+
+    /** Amount of health gained from certain actions or items. */
+    public int healthGain;
+
+    // Pet states
+    /** Indicates if the pet is dead. */
+    private boolean dead;
+
+    /** Indicates if the pet is currently sleeping. */
+    private boolean sleeping;
+
+    /** Indicates if the pet is currently hungry. */
+    private boolean hungry;
+
+    /** Indicates if the pet is currently angry. */
+    private boolean angry;
+
+    // Inventory counts for items
+    /** Number of bananas in the inventory. */
+    private int bananaCount;
+
+    /** Number of pies in the inventory. */
+    private int pieCount;
+
+    /** Number of pizzas in the inventory. */
+    private int pizzaCount;
+
+    /** Number of balls in the inventory. */
+    private int ballCount;
+
+    /** Number of plush toys in the inventory. */
+    private int plushCount;
+
+    /** Number of swords in the inventory. */
+    private int swordCount;
+
+    // Other attributes
+    /** The game's difficulty level. */
+    private String difficulty;
+
+    /** Name of the pet. */
+    private String name;
+
+    /** The score threshold for earning rewards. */
+    private int nextThreshold;
+
+    /** Random object for generating random numbers. */
+    private Random random;
+
+    /** Stores the last generated random number. */
+    private int randomNumber;
+
+    /**
+     * Decreases the pet's score by a specified amount.
+     *
+     * @param amount The amount to decrease the score by.
+     */
+    public void decreaseScore(int amount) {
+        this.score -= amount;
+    }
+
+    /**
+     * Gets the pet's current health.
+     *
+     * @return The current health of the pet.
+     */
+    public int getHealth() {
+        return this.health;
+    }
+
+    /**
+     * Sets the pet's health, ensuring it does not exceed the maximum health.
+     *
+     * @param newHealth The new health value to set.
+     */
+    public void setHealth(int newHealth) {
+        this.health = Math.min(newHealth, this.maxHealth);
+    }
+
+    /**
+     * Gets the pet's current sleep level.
+     *
+     * @return The current sleep level of the pet.
+     */
+    public int getSleep() {
+        return this.sleep;
+    }
+
+    /**
+     * Sets the pet's sleep level, ensuring it does not exceed the maximum sleep level.
+     *
+     * @param newSleep The new sleep value to set.
+     */
+    public void setSleep(int newSleep) {
+        this.sleep = Math.min(newSleep, this.maxSleep);
+    }
+
+    /**
+     * Gets the pet's current fullness level.
+     *
+     * @return The current fullness level of the pet.
+     */
+    public int getFullness() {
+        return this.fullness;
+    }
+
+    /**
+     * Sets the pet's fullness, ensuring it does not exceed the maximum fullness.
+     *
+     * @param newFull The new fullness value to set.
+     */
+    public void setFullness(int newFull) {
+        this.fullness = Math.min(newFull, this.maxFullness);
+    }
+
+    /**
+     * Gets the pet's current happiness level.
+     *
+     * @return The current happiness level of the pet.
+     */
+    public int getHappiness() {
+        return this.happiness;
+    }
+
+    /**
+     * Sets the pet's happiness, ensuring it does not exceed the maximum happiness.
+     *
+     * @param newHappy The new happiness value to set.
+     */
+    public void setHappiness(int newHappy) {
+        this.happiness = Math.min(newHappy, this.maxHappiness);
+    }
+
+    /**
+     * Checks if the pet is dead.
+     *
+     * @return True if the pet is dead, false otherwise.
+     */
+    public boolean isDead() {
+        return this.dead;
+    }
+
+    /**
+     * Sets the pet's dead state.
+     *
+     * @param deadVal True if the pet is dead, false otherwise.
+     */
+    public void setDead(boolean deadVal) {
+        this.dead = deadVal;
+    }
+
+    /**
+     * Checks if the pet is sleeping.
+     *
+     * @return True if the pet is sleeping, false otherwise.
+     */
+    public boolean isSleeping() {
+        return this.sleeping;
+    }
+
+    /**
+     * Sets the pet's sleeping state.
+     *
+     * @param sleepVal True if the pet is sleeping, false otherwise.
+     */
+    public void setSleeping(boolean sleepVal) {
+        this.sleeping = sleepVal;
+    }
+
+    /**
+     * Gets the number of pies in the inventory.
+     *
+     * @return The number of pies in the inventory.
+     */
+    public int getPieCount() {
+        return this.pieCount;
+    }
+
+    /**
+     * Decreases the number of pies in the inventory by one.
+     */
+    public void decrementPieCount() {
+        this.pieCount--;
+    }
+
+    // Add similar comments for all getter and setter methods for inventory counts.
+
+    /**
+     * Gets the pet's difficulty level.
+     *
+     * @return The difficulty level of the game.
+     */
+    public String getDifficulty() {
+        return this.difficulty;
+    }
+
+    /**
+     * Gets the name of the pet.
+     *
+     * @return The name of the pet.
+     */
+    public String getName() {
+        return this.name;
+    }
+}

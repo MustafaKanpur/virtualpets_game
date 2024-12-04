@@ -1,0 +1,223 @@
+import java.util.Random;
+
+/**
+ * Represents a virtual pet with attributes, behaviors, and inventory.
+ * This class manages the pet's stats, states, and inventory, and provides methods for interaction.
+ */
+public class Pet {
+
+    // Attributes related to the pet's state
+    private int health;
+    private int sleep;
+    private int fullness;
+    private int happiness;
+    private int score;
+
+    // Maximum possible values for attributes
+    private int maxHealth;
+    private int maxSleep;
+    private int maxFullness;
+    private int maxHappiness;
+
+    // Attribute loss rates over time
+    private int healthLoss;
+    private int sleepLoss;
+    private int fullnessLoss;
+    private int happinessLoss;
+
+    // Attribute gain rates from activities or items
+    private int healthGain;
+    private int sleepGain;
+    private int fullnessGain;
+    private int happinessGain;
+
+    // Pet states
+    private boolean dead;
+    private boolean sleeping;
+    private boolean hungry;
+    private boolean angry;
+
+    // Inventory counts for items
+    private int bananaCount;
+    private int pieCount;
+    private int pizzaCount;
+    private int ballCount;
+    private int plushCount;
+    private int swordCount;
+
+    // Other attributes
+    private String difficulty;
+    private String name;
+    private int nextThreshold;
+
+    private Random random;
+    private int randomNumber;
+
+    /**
+     * Constructs a Pet object with specified attributes, inventory, and stats.
+     *
+     * @param difficulty the difficulty level of the game
+     * @param healthVal initial health of the pet
+     * @param sleepVal initial sleep level of the pet
+     * @param fullnessVal initial fullness level of the pet
+     * @param happinessVal initial happiness level of the pet
+     * @param maxHealth maximum health of the pet
+     * @param maxSleep maximum sleep of the pet
+     * @param maxFullness maximum fullness of the pet
+     * @param maxHappiness maximum happiness of the pet
+     * @param healthLoss rate at which health decreases
+     * @param sleepLoss rate at which sleep decreases
+     * @param fullnessLoss rate at which fullness decreases
+     * @param happinessLoss rate at which happiness decreases
+     * @param healthGain rate at which health increases
+     * @param sleepGain rate at which sleep increases
+     * @param fullnessGain rate at which fullness increases
+     * @param happinessGain rate at which happiness increases
+     * @param pieCount initial number of pies
+     * @param bananaCount initial number of bananas
+     * @param pizzaCount initial number of pizzas
+     * @param ballCount initial number of balls
+     * @param plushCount initial number of plush toys
+     * @param swordCount initial number of swords
+     * @param name the name of the pet
+     * @param score the initial score of the pet
+     */
+    public Pet(String difficulty, int healthVal, int sleepVal, int fullnessVal, int happinessVal,
+               int maxHealth, int maxSleep, int maxFullness, int maxHappiness,
+               int healthLoss, int sleepLoss, int fullnessLoss, int happinessLoss,
+               int healthGain, int sleepGain, int fullnessGain, int happinessGain,
+               int pieCount, int bananaCount, int pizzaCount, int ballCount,
+               int plushCount, int swordCount, String name, int score) {
+
+        this.difficulty = difficulty;
+        this.health = healthVal;
+        this.sleep = sleepVal;
+        this.fullness = fullnessVal;
+        this.happiness = happinessVal;
+        this.name = name;
+        this.score = score;
+
+        this.bananaCount = bananaCount;
+        this.pieCount = pieCount;
+        this.pizzaCount = pizzaCount;
+        this.ballCount = ballCount;
+        this.plushCount = plushCount;
+        this.swordCount = swordCount;
+
+        this.maxHealth = maxHealth;
+        this.maxSleep = maxSleep;
+        this.maxFullness = maxFullness;
+        this.maxHappiness = maxHappiness;
+
+        this.healthLoss = healthLoss;
+        this.sleepLoss = sleepLoss;
+        this.fullnessLoss = fullnessLoss;
+        this.happinessLoss = happinessLoss;
+
+        this.healthGain = healthGain;
+        this.sleepGain = sleepGain;
+        this.fullnessGain = fullnessGain;
+        this.happinessGain = happinessGain;
+
+        this.dead = false;
+        this.sleeping = false;
+        this.hungry = false;
+        this.angry = false;
+
+        this.nextThreshold = 50;
+        this.random = new Random();
+    }
+
+    /**
+     * Gets the current score of the pet.
+     *
+     * @return the current score
+     */
+    public int getScore() {
+        return score;
+    }
+
+    /**
+     * Increases the pet's score and grants rewards when score thresholds are reached.
+     *
+     * @param amount the amount to increase the score by
+     */
+    public void increaseScore(int amount) {
+        randomNumber = random.nextInt(7); // Generate a random number between 0 and 6
+
+        this.score += amount;
+
+        while (this.score >= nextThreshold) {
+            switch (randomNumber) {
+                case 0: this.pieCount++; break;
+                case 1: this.bananaCount++; break;
+                case 2: this.pizzaCount++; break;
+                case 3: this.ballCount++; break;
+                case 4: this.swordCount++; break;
+                case 5: this.plushCount++; break;
+                default: break;
+            }
+
+            System.out.println("Threshold reached: " + nextThreshold);
+            nextThreshold += 50;
+        }
+    }
+
+    /**
+     * Decreases the pet's score by the specified amount.
+     *
+     * @param amount the amount to decrease the score by
+     */
+    public void decreaseScore(int amount) {
+        this.score = Math.max(0, this.score - amount); // Ensure score does not drop below zero
+    }
+
+    // Getter and setter methods for health, sleep, fullness, happiness
+    public int getHealth() { return this.health; }
+    public void setHealth(int newHealth) { this.health = Math.min(newHealth, this.maxHealth); }
+
+    public int getSleep() { return this.sleep; }
+    public void setSleep(int newSleep) { this.sleep = Math.min(newSleep, this.maxSleep); }
+
+    public int getFullness() { return this.fullness; }
+    public void setFullness(int newFull) { this.fullness = Math.min(newFull, this.maxFullness); }
+
+    public int getHappiness() { return this.happiness; }
+    public void setHappiness(int newHappy) { this.happiness = Math.min(newHappy, this.maxHappiness); }
+
+    // State methods
+    public boolean isDead() { return this.dead; }
+    public void setDead(boolean deadVal) { this.dead = deadVal; }
+
+    public boolean isSleeping() { return this.sleeping; }
+    public void setSleeping(boolean sleepVal) { this.sleeping = sleepVal; }
+
+    public boolean isHungry() { return this.hungry; }
+    public void setHungry(boolean hungryVal) { this.hungry = hungryVal; }
+
+    public boolean isAngry() { return this.angry; }
+    public void setAngry(boolean angryVal) { this.angry = angryVal; }
+
+    // Inventory management methods
+    public int getPieCount() { return this.pieCount; }
+    public void decrementPieCount() { this.pieCount = Math.max(0, this.pieCount - 1); }
+
+    public int getBananaCount() { return this.bananaCount; }
+    public void decrementBananaCount() { this.bananaCount = Math.max(0, this.bananaCount - 1); }
+
+    public int getPizzaCount() { return this.pizzaCount; }
+    public void decrementPizzaCount() { this.pizzaCount = Math.max(0, this.pizzaCount - 1); }
+
+    public int getBallCount() { return this.ballCount; }
+    public void decrementBallCount() { this.ballCount = Math.max(0, this.ballCount - 1); }
+
+    public int getPlushCount() { return this.plushCount; }
+    public void decrementPlushCount() { this.plushCount = Math.max(0, this.plushCount - 1); }
+
+    public int getSwordCount() { return this.swordCount; }
+    public void decrementSwordCount() { this.swordCount = Math.max(0, this.swordCount - 1); }
+
+    // Additional getters for metadata
+    public String getDifficulty() { return this.difficulty; }
+    public String getName() { return this.name; }
+}

@@ -1,0 +1,228 @@
+import javax.imageio.ImageIO;
+import javax.swing.*;
+import javax.swing.border.Border;
+import java.util.regex.*;
+import java.awt.*;
+import java.awt.event.*;
+import java.io.File;
+import java.util.concurrent.Flow;
+
+/**
+ * NewGameScreen class. Lets users begin a new game.
+ * 
+ * <br>
+ * <br>
+ * Users can choose to begin a new game and are brought here. They then have the
+ * option to choose from three different types of pet presented to them: easy,
+ * medium, and hard. From here they can name their pet, and then begin playing.
+ * <br>
+ * <br>
+ * 
+ * @author Libby Cook
+ * @author Teagan Rand Martins
+ */
+public class NewGameScreen extends Screen {
+
+    /**
+     * NewGameScreen constructor. Creates the display of the screen.
+     * 
+     * <br>
+     * <br>
+     * Users are presented with three different pet types:
+     * easy, medium, and hard. They are displayed with a sprite
+     * and with a short description. They each have a button to choose
+     * them. Screen also allows for navigation back to main menu.
+     * <br>
+     * <br>
+     * 
+     * @param gameWindow
+     * @param cardLayout
+     * @param cardPanel
+     */
+    public NewGameScreen(JFrame gameWindow, CardLayout cardLayout, JPanel cardPanel) {
+
+        // Screen setup
+        super(gameWindow, cardLayout, cardPanel);
+        setLayout(new BorderLayout());
+
+        // Creating the top panel
+        JPanel topPanel = new JPanel();
+        topPanel.setLayout(new BorderLayout());
+        topPanel.setOpaque(false);
+
+        // Creating the navigation Panel
+        JPanel navigationPanel = new JPanel();
+        navigationPanel.setLayout(new BorderLayout());
+        JButton backButton = new JButton("Back to main menu");
+        backButton.addActionListener(e -> cardLayout.show(cardPanel, "1"));
+        navigationPanel.add(backButton, BorderLayout.EAST);
+        navigationPanel.setOpaque(false);
+
+        // Creating the title Panel
+        JPanel titlePanel = new JPanel();
+        titlePanel.setLayout(new FlowLayout(FlowLayout.CENTER));
+        JPanel verticalPanel = new JPanel();
+        verticalPanel.setLayout(new BoxLayout(verticalPanel, BoxLayout.Y_AXIS));
+        JLabel titleLabel = new JLabel("New Game");
+        titleLabel.setFont(new Font("Arial", Font.BOLD, 50));
+        JLabel titleDescription = new JLabel("Choose a type of pet");
+        titleDescription.setFont(new Font("Arial", Font.PLAIN, 20));
+        verticalPanel.add(titleLabel);
+        verticalPanel.add(Box.createVerticalStrut(20));
+        verticalPanel.add(titleDescription);
+        verticalPanel.setOpaque(false);
+
+        // Adding to title panel
+        titlePanel.add(verticalPanel);
+        titlePanel.add(Box.createHorizontalStrut(200));
+        titlePanel.setOpaque(false);
+
+        // Adding to top panel
+        topPanel.add(navigationPanel, BorderLayout.NORTH);
+        topPanel.add(titlePanel, BorderLayout.CENTER);
+        topPanel.setOpaque(false);
+
+        // Creating content panel
+        JPanel contentPanel = new JPanel();
+        contentPanel.setLayout(new FlowLayout(FlowLayout.CENTER, 20, 10));
+        contentPanel.add(Box.createVerticalStrut(300));
+        contentPanel.setOpaque(false);
+
+        // Create pet panels for each different pet type
+        JPanel petPanel1 = createPetPanel("Pet1", "easy",
+                "'Easy': This pet has the slowest decrease in sleep, happiness, and fullness. This will make for the easiest gameplay. ");
+        JPanel petPanel2 = createPetPanel("Pet2", "medium",
+                "'Medium': This pet has the normal decrease in sleep, happiness, and fullness. This will make for medium difficulty gameplay.");
+        JPanel petPanel3 = createPetPanel("Pet3", "hard",
+                "'Hard': This pet's fullness, happiness, and sleep decrease the fastest. This will make for a very challenging game!");
+
+        // Adding pets to the content panel
+        contentPanel.add(petPanel1, BorderLayout.WEST);
+        contentPanel.add(petPanel2, BorderLayout.CENTER);
+        contentPanel.add(petPanel3, BorderLayout.EAST);
+
+        // Adding the dif overarching panels to the screen
+        add(topPanel, BorderLayout.NORTH);
+        add(contentPanel, BorderLayout.CENTER);
+
+    }
+
+    /**
+     * chooseNameDialog method. Creates the popup displayed to name a pet.
+     * 
+     * <br>
+     * <br>
+     * This method defines how we create the pop-up that actually
+     * allows the user to name their pet. The name must only consist
+     * of letters in the alphabet, no numbers, and must not be empty.
+     * Once the user has chosen a name that's valid, they can submit
+     * to start playing.
+     * <br>
+     * <br>
+     * 
+     * @param petType a string which indicates which type of pet they chose to name
+     * @throws
+     */
+    private void chooseNameDialog(String petType) {
+
+        // Creates a new dialog/pop-up box
+        JDialog petChosen = new JDialog(gameWindow, "Name your pet", true);
+        petChosen.setSize(400, 150);
+        petChosen.setLayout(new BorderLayout());
+
+        // Creates contents of pop-up and adds them to dialog box
+        JLabel label = new JLabel("Choose a name for your pet:");
+        JTextArea nameInputted = new JTextArea("Write name here...", 1, 10);
+        JButton enterName = new JButton("Start Game");
+        petChosen.add(label, BorderLayout.NORTH);
+        petChosen.add(nameInputted);
+        petChosen.add(enterName, BorderLayout.SOUTH);
+
+        // Creates action listeners for the button
+        enterName.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                // Validate the name chosen (text in input area)
+                String name = nameInputted.getText();
+                Pattern pattern = Pattern.compile("^[a-zA-Z]+$");
+                Matcher matcher = pattern.matcher(name);
+                if (matcher.find()) {
+
+                    // Name is allowed and we begin game
+                    petChosen.dispose();
+
+                } else {
+                    // Name not alloweed
+                    nameInputted.setText("");
+                    JDialog nameNotAllowed = new JDialog(gameWindow, "Invalid name", true);
+                    nameNotAllowed.setSize(400, 150);
+                    nameNotAllowed.setLayout(new BorderLayout());
+                    nameNotAllowed.setLocationRelativeTo(null);
+
+                    JLabel labelName = new JLabel(
+                            "<html><font color='red'><p><b>Name not allowed.</b></br>Names must only include characters (not numbers or punctuation), and must not be empty</p></font></html>");
+                    nameNotAllowed.add(labelName, BorderLayout.CENTER);
+                    JButton acknowledgedButton = new JButton("Okay");
+                    acknowledgedButton.addActionListener(new ActionListener() {
+                        @Override
+                        public void actionPerformed(ActionEvent e) {
+                            nameNotAllowed.dispose();
+                        }
+                    });
+
+                    nameNotAllowed.add(acknowledgedButton, BorderLayout.SOUTH);
+                    nameNotAllowed.setVisible(true);
+                }
+            }
+        });
+
+        // Make our pop-up visible and set to right place
+        petChosen.setLocationRelativeTo(gameWindow);
+        petChosen.setVisible(true);
+    }
+
+    /**
+     * createPetPanel method. A method that creates the display of each pet type.
+     * 
+     * <br>
+     * <br>
+     * This method creates the panel used to display information about each
+     * pet type, including it's description, an image of the pet, and a button
+     * allow the user to click and choose this type.
+     * <br>
+     * <br>
+     * 
+     * @param petType            the name of the type as in the resources file,
+     *                           allowing access to image
+     * @param petTypeDescriptive the name of the pet type as used on the CSV file
+     *                           and game screen
+     * @param petDescription     a short description of how the pet type differs
+     *                           from the others
+     * @return JPanel
+     */
+    private JPanel createPetPanel(String petType, String petTypeDescriptive, String petDescription) {
+        JPanel petPanel = new JPanel();
+        petPanel.setLayout(new BoxLayout(petPanel, BoxLayout.Y_AXIS));
+        petPanel.setOpaque(false);
+        ImageIcon myPicture = new ImageIcon("../src/Resources/" + petType + "/Normal.png");
+        Image resizedImage = myPicture.getImage().getScaledInstance(120, 150, Image.SCALE_SMOOTH);
+        ImageIcon resizedIcon = new ImageIcon(resizedImage);
+        JLabel image = new JLabel(resizedIcon);
+        image.setAlignmentX(Component.CENTER_ALIGNMENT);
+        JLabel description = new JLabel(
+                "<html><div style='width:200px;font-size:12px'>" + petDescription + "</div></html>");
+        description.setAlignmentX(Component.CENTER_ALIGNMENT);
+        JButton petButton = new JButton("Choose " + petTypeDescriptive + " pet");
+        petButton.setAlignmentX(Component.CENTER_ALIGNMENT);
+        petPanel.add(description);
+        petPanel.add(image);
+        petPanel.add(petButton);
+        petButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                chooseNameDialog(petTypeDescriptive);
+            }
+        });
+        return petPanel;
+    }
+}

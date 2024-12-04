@@ -1,0 +1,96 @@
+public class PetController {
+    private Pet currentPet;
+
+    public PetController(Pet pet){
+        currentPet = pet;
+    }
+
+    public void playWithPet(){
+        currentPet.setHappiness(currentPet.getHappiness() + currentPet.getHappinessGain());
+        if(currentPet.getHealth() < currentPet.getMaxHealth()){
+            currentPet.increaseScore(20);
+        }
+        
+    }
+
+    public void exerciseWithPet(){
+        currentPet.setHealth(currentPet.getHealth() + currentPet.getHealthGain());
+        currentPet.setSleep(currentPet.getSleep() - currentPet.getSleepLoss());
+        currentPet.setFullness(currentPet.getFullness() - currentPet.getFullnessLoss());
+        currentPet.increaseScore(20);
+
+    
+    }
+
+    public void petToVet(){
+        currentPet.setHealth(currentPet.getHealth() + currentPet.getHealthGain());
+
+        currentPet.decreaseScore(5);
+    }
+
+    public void petSleep(){
+        currentPet.setSleep(currentPet.getSleep() + currentPet.getSleepGain());
+
+        if(currentPet.getSleep() < currentPet.getMaxSleep()){
+            currentPet.increaseScore(15);
+
+        }
+    }
+
+    public void feedPet(){
+        currentPet.setFullness(currentPet.getFullness() + currentPet.getFullnessGain());
+
+        if(currentPet.getFullness() < currentPet.getMaxFullness()){
+            currentPet.increaseScore(15);
+
+        }
+
+        if(currentPet.isHungry() && currentPet.getFullness() > 0){
+            currentPet.setHungry(false);
+        }
+    }
+
+
+    public void giftPet(){
+        // same as above
+        currentPet.setHappiness(currentPet.getHappiness() + currentPet.getHappinessGain());
+
+        if(currentPet.getHappiness() < currentPet.getMaxHappiness()){
+            currentPet.increaseScore(20);
+
+        }
+
+        if(currentPet.isAngry() && currentPet.getHappiness()  > currentPet.getMaxHappiness()/2){
+            currentPet.setAngry(false);
+        }
+    }
+
+
+    public void checkSleep(){
+        if(currentPet.getSleep() == 0){
+            currentPet.setSleeping(true);
+        }
+    }
+
+
+    public void checkDead(){
+            if(currentPet.getHealth() == 0){
+                currentPet.setDead(true);
+
+            }
+        
+    }
+
+    public void checkAngry(){
+        if(currentPet.getHappiness() == 0){
+            currentPet.setAngry(true);
+
+        }
+    }
+
+    public void checkHungry(){
+        if(currentPet.getFullness() == 0){
+            currentPet.setHungry(true);
+        }
+    }
+}

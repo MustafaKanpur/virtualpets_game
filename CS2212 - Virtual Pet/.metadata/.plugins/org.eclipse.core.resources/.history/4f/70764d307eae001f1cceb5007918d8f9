@@ -1,0 +1,167 @@
+import java.awt.GridLayout;
+import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.List;
+import javax.swing.JButton;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JSpinner;
+import javax.swing.JToggleButton;
+import javax.swing.SpinnerNumberModel;
+import java.awt.CardLayout;
+import java.awt.Color;
+import com.opencsv.*;
+import com.opencsv.exceptions.CsvException;
+
+@SuppressWarnings("serial")
+public class ParentalControlScreen extends JPanel {
+
+        private JButton exit;
+        private JButton reset;
+        private CSVReader csvreader;
+        private FileReader filereader;
+        private JSpinner hourBegin;
+        private JSpinner hourEnd;
+        private JSpinner minuteBegin;
+        private JSpinner minuteEnd;
+        private JButton confirm;
+        private JToggleButton on;
+        
+
+        public ParentalControlScreen(CardLayout cl, JPanel panelCont,MainMenu mainMenu) throws IOException, CsvException {
+        		this.exit = new JButton("Exit");
+                this.reset = new JButton("Reset Statistics");
+                this.confirm = new JButton("Confirm");
+                this.on = new JToggleButton("On/Off");
+                
+                this.hourBegin = new JSpinner(new SpinnerNumberModel(0, 0, 23, 1));
+                this.hourEnd = new JSpinner(new SpinnerNumberModel(0,0,23,1));
+                this.minuteBegin = new JSpinner(new SpinnerNumberModel(0,0,59,1));
+                this.minuteEnd = new JSpinner(new SpinnerNumberModel(0,0,59,1));
+                
+                this.filereader = new FileReader("C:\\Users\\owner\\Documents\\parental_controls.csv");
+                this.csvreader = new CSVReader(this.filereader);
+                
+                List<String[]> rows = csvreader.readAll();
+                
+
+                this.exit.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(java.awt.event.ActionEvent e) {
+                        cl.show(panelCont,"3");
+                }
+                });
+                
+                this.reset.addActionListener(new ActionListener() {
+                	@Override
+                	public void actionPerformed(java.awt.event.ActionEvent e) {
+                		int answer = JOptionPane.showConfirmDialog(mainMenu, "Are you sure?");
+                		
+                		if (answer==0) {
+                			try {
+                				
+                        		mainMenu.resetStart();
+    							CSVReader csvreader = new CSVReader(new FileReader("C:\\Users\\owner\\Documents\\parental_controls.csv"));
+    	                        List<String[]> rows = csvreader.readAll();
+                        		
+                				
+								FileWriter filewriter = new FileWriter("C:\\Users\\owner\\Documents\\parental_controls.csv",true);
+	                			CSVWriter csvwriter = new CSVWriter(filewriter);
+	                			
+	                			csvwriter.writeNext(new String[]{0+"",0+"",0+"",rows.get(rows.size()-1)[3]+"",rows.get(rows.size()-1)[4]+"",rows.get(rows.size()-1)[5]+"",rows.get(rows.size()-1)[6]+""});
+	                			System.out.println("Written");
+	                			csvwriter.close();
+							} catch (IOException | CsvException e1) {
+								e1.printStackTrace();
+							}
+                			
+                		}
+                		
+                	}
+                });
+                
+                this.confirm.addActionListener(new ActionListener() {
+                	@Override
+                	public void actionPerformed(java.awt.event.ActionEvent e) {
+                		if (((int)hourBegin.getValue() == (int)hourEnd.getValue() && ((int)minuteBegin.getValue() < (int)minuteEnd.getValue()) || ((int) hourBegin.getValue() < (int) hourEnd.getValue()))) {
+                        	String[] lastRow = null;
+                        	
+                            CSVReader reader;
+							try {
+								reader = new CSVReader(new FileReader("C:\\Users\\owner\\Documents\\parental_controls.csv"));
+	                            List<String[]> rows = reader.readAll();
+	                            lastRow = rows.get(rows.size() - 1);
+							} catch (IOException | CsvException e2) {
+								// TODO Auto-generated catch block
+								e2.printStackTrace();
+							}
+                             
+                			try {
+								FileWriter filewriter = new FileWriter("C:\\Users\\owner\\Documents\\parental_controls.csv",true);
+	                			CSVWriter csvwriter = new CSVWriter(filewriter);
+	                			csvwriter.writeNext(new String[] {lastRow[0],lastRow[1],lastRow[2],hourBegin.getValue() + "", minuteBegin.getValue()+"",hourEnd.getValue()+"",minuteEnd.getValue()+""});
+	                			csvwriter.close();
+							} catch (IOException e1) {
+								// TODO Auto-generated catch block
+								e1.printStackTrace();
+							}
+                			JOptionPane.showMessageDialog(mainMenu, "Time Restriction Successfully Apllied");
+                		}
+                		else {
+                			JOptionPane.showMessageDialog(mainMenu, "Starting time must be BEFORE Ending time", "Invalid Time Restriction", JOptionPane.ERROR_MESSAGE);
+                		}
+                	}
+                });
+
+                this.add(this.exit);
+                
+                for (int i = 0; i < 100; i++) {
+                	if (i==7) {
+                		this.add(new JLabel("Total Playtime: " + Integer.parseInt(rows.get(rows.size()-1)[1])/3600 + " h " + (Integer.parseInt(rows.get(rows.size()-1)[1])%3600)/60 + " m " + Integer.parseInt(rows.get(rows.size()-1)[1])%60 + " s "));
+                	}
+                	if (i==14) {
+                		this.add(new JLabel("Average Playtime: " + Integer.parseInt(rows.get(rows.size()-1)[2])/3600 + " h " + (Integer.parseInt(rows.get(rows.size()-1)[2])%3600)/60 + " m " + Integer.parseInt(rows.get(rows.size()-1)[2])%60 + " s "));
+                	}
+                	if (i==21) {
+                		this.add(this.reset);
+                	}
+                	if (i==76) {
+                		this.add(hourBegin);
+                	}
+                	if (i==76) {
+                		this.add(minuteBegin);
+                	}
+                	if (i==76) {
+                		this.add(new JLabel("-"));
+                	}
+                	if(i==76) {
+                		this.add(hourEnd);
+                	}
+                	if (i==76) {
+                		this.add(minuteEnd);
+                	}
+                	if (i==81) {
+                		this.add(confirm);
+                	}
+                	if (i==88) {
+                		this.add(on);
+                	}
+                	else {
+                    	this.add(new JLabel(" "));	
+                	}
+                }
+                
+                
+                
+                this.setLayout(new GridLayout(0,8));
+                this.setBackground(Color.white);
+
+
+        }
+
+}

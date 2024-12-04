@@ -1,0 +1,26 @@
+import java.awt.Component;
+
+import javax.swing.BoxLayout;
+import javax.swing.ImageIcon;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+
+public class mainPanel extends JPanel {
+	
+	public JLabel animatedLabel;
+	public mainPanel() {
+		this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
+		this.setOpaque(false);
+		
+        animatedLabel = new JLabel();
+        ImageIcon[] animationFrames = new ImageIcon[]{
+            new ImageIcon("src/resources/Walk.png"),       // First frame
+            new ImageIcon("src/resources/WalkFlip.png")    // Second frame
+        };
+        int currentFrame = 0;
+		animatedLabel.setIcon(animationFrames[currentFrame]);
+        animatedLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+        this.add(animatedLabel);
+	}
+
+}

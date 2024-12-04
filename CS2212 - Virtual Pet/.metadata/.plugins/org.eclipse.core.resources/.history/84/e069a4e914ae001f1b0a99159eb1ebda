@@ -1,0 +1,62 @@
+import java.awt.Component;
+import java.awt.Dimension;
+import java.awt.GridLayout;
+import java.awt.event.ActionListener;
+import javax.swing.JButton;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JPasswordField;
+import javax.swing.JTextField;
+import java.awt.Color;
+import java.awt.CardLayout;
+
+public class PasscodeScreen extends JPanel {
+
+    private JTextField passcode;
+    private JButton enter;
+
+    public PasscodeScreen(CardLayout cl, JPanel panelCont) {
+        this.passcode = new JPasswordField();
+        this.enter = new JButton();
+
+        this.passcode.setMaximumSize(new Dimension(250,50));
+        this.passcode.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+        enter.setText("Enter");
+        enter.setAlignmentX(Component.CENTER_ALIGNMENT);
+        enter.setBounds(150, 200, 100, 100);
+
+        enter.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(java.awt.event.ActionEvent e) {
+                String passwordAttempt = PasscodeScreen.this.getPasscode().getText();
+                if (passwordAttempt.equals("group35")) {
+                    System.out.println("Access Granted");
+                    cl.show(panelCont,"2");
+                } else {
+                    System.out.println("Access Denied");
+            }
+        }});
+
+        
+        this.setLayout(new GridLayout(0,7));
+        for (int i=0;i<100;i++) {
+        	if (i==45) {
+        		this.add(passcode);
+        	}
+        	else if (i==52) {
+        		this.add(enter);
+        	}
+        	else {
+            	this.add(new JLabel(" "));
+        	}
+        	
+        }
+        
+        this.setBackground(Color.white);
+    }
+
+    public JTextField getPasscode() {
+        return this.passcode;
+    }
+}
